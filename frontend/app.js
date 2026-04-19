@@ -127,10 +127,14 @@ function renderCollection(cars) {
 
         const info = document.createElement("div");
         info.className = "car-info";
+        var powerString = "-"
+        if(car.power){
+            powerString = car.is_electric ? car.power + " kW" : Math.round(1.35962*car.power) + " hp"
+        }
         info.innerHTML = `
             <b>${car.make || "Unknown"} ${car.model || ""}</b><br>
             Year: ${car.year || "-"}<br>
-            Power: ${car.power ? car.power + " hp" : "-"}
+            Power: ${powerString}
         `;
 
         card.onclick = () => {
