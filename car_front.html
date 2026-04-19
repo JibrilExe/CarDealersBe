@@ -1,0 +1,48 @@
+<input type="file" id="fileInput" />
+
+<button onclick="upload()">Upload</button>
+<button onclick="loadCars()">Load Cars</button>
+
+<div id="gallery"></div>
+
+<script>
+let session_id = localStorage.getItem("session_id");
+
+if (!session_id) {
+    session_id = crypto.randomUUID();
+    localStorage.setItem("session_id", session_id);
+}
+
+async function upload() {
+    const file = document.getElementById("fileInput").files[0];
+
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("session_id", session_id);
+
+    await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData
+    });
+
+    loadCars();
+}
+
+async function loadCars() {
+    const res = await fetch(`http://localhost:5000/cars?session_id=${session_id}`);
+    const cars = await res.json();
+
+    const gallery = document.getElementById("gallery");
+    gallery.innerHTML = "";
+
+    cars.forEach(car => {
+        const img = document.createElement("img");
+        img.src = "http://localhost:5000" + car.image_url;
+        img.width = 200;
+        img.style.margin = "10px";
+        gallery.appendChild(img);
+    });
+}
+</script>
