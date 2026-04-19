@@ -47,12 +47,31 @@ def init_db():
         power FLOAT,
         color TEXT,
         cc FLOAT,
-        cylinders INTEGER  
+        cylinders INTEGER,
+        x FLOAT,
+        y FLOAT  
     )
     """)
     conn.commit()
 
 init_db()
+
+@app.route("/place-car", methods=["POST"])
+def place_car():
+    data = request.json
+    car_id = data["car_id"]
+    x = data["x"]
+    y = data["y"]
+
+    cursor.execute("""
+        UPDATE cars
+        SET x = %s, y = %s
+        WHERE id = %s
+    """, (x, y, car_id))
+
+    conn.commit()
+
+    return jsonify({"ok": True})
 
 @app.route("/upload", methods=["POST"])
 def upload():

@@ -1,13 +1,14 @@
-<input type="file" id="fileInput" />
-
-<button onclick="upload()">Upload</button>
-<button onclick="loadCars()">Load Cars</button>
-<button onclick="removeBg()">Remove BG</button>
-
-<div id="gallery"></div>
+<div id="topBar">
+    <button onclick="race()">🏁 Race</button>
+    <button id="uploadBtn">➕ Add</button>
+</div>
 <div id="loading" style="display:none;">Processing...</div>
 
-<link rel="stylesheet" href="styles.css" />
+<div id="garage"></div>
 
-<script src="api.js"></script>
-<script src="app.js"></script>
+<div id="collection"></div>
+
+<input type="file" id="fileInput" style="display:none;" />
+
+<script type="module" src="app.js"></script>
+<link rel="stylesheet" href="styles.css">
