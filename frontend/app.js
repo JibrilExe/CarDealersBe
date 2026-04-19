@@ -27,7 +27,7 @@ async function upload() {
     formData.append("image", file);
     formData.append("session_id", session_id);
 
-    await fetch("http://localhost:5000/upload", {
+    await fetch("http://localhost:5001/upload", {
         method: "POST",
         body: formData
     });
@@ -37,7 +37,7 @@ async function upload() {
 }
 
 async function loadCars() {
-    const res = await fetch(`http://localhost:5000/cars?session_id=${session_id}`);
+    const res = await fetch(`http://localhost:5001/cars?session_id=${session_id}`);
     const cars = await res.json();
 
     renderCollection(cars);
@@ -52,7 +52,7 @@ async function removeBg() {
 
     setLoading(true);
 
-    await fetch("http://localhost:5000/remove-bg", {
+    await fetch("http://localhost:5001/remove-bg", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ car_id: selectedCar })
@@ -78,7 +78,7 @@ async function handleFileSelect(event) {
         formData.append("image", file);
         formData.append("session_id", session_id);
 
-        const uploadRes = await fetch("http://localhost:5000/upload", {
+        const uploadRes = await fetch("http://localhost:5001/upload", {
             method: "POST",
             body: formData
         });
@@ -87,9 +87,9 @@ async function handleFileSelect(event) {
 
         // 2. Try remove background
         try {
-            await fetch("http://localhost:5000/remove-bg", {
+            await fetch("http://localhost:5001/remove-bg", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ car_id: car.id })
             });
         } catch (err) {
@@ -122,7 +122,7 @@ function renderCollection(cars) {
         }
 
         const img = document.createElement("img");
-        img.src = "http://localhost:5000" + (car.bg_removed_url || car.image_url);
+        img.src = "http://localhost:5001" + (car.bg_removed_url || car.image_url);
         img.className = "car";
 
         const info = document.createElement("div");
@@ -170,9 +170,9 @@ function setupGarageDrop() {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        await fetch("http://localhost:5000/place-car", {
+        await fetch("http://localhost:5001/place-car", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ car_id: carId, x, y })
         });
 
@@ -189,14 +189,14 @@ function renderGarage(cars) {
         if (car.x == null || car.y == null) return;
 
         const img = document.createElement("img");
-        img.src = "http://localhost:5000" + (car.bg_removed_url || car.image_url);
+        img.src = "http://localhost:5001" + (car.bg_removed_url || car.image_url);
         img.className = "car";
 
         img.style.left = car.x + "px";
         img.style.top = car.y + "px";
 
         img.onclick = async () => {
-            await fetch("http://localhost:5000/place-car", {
+            await fetch("http://localhost:5001/place-car", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
