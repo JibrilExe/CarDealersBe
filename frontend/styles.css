@@ -1,0 +1,36 @@
+.car-card {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+}
+
+.car {
+    width: 200px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.car-info {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 6px;
+    font-size: 12px;
+
+    opacity: 0;
+    transition: 0.2s;
+    border-radius: 6px;
+}
+
+.car-card:hover .car-info {
+    opacity: 1;
+}
+
+.car-card.selected {
+    outline: 3px solid #00aaff;
+    border-radius: 8px;
+}
