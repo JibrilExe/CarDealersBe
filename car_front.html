@@ -3,6 +3,7 @@
 <button onclick="upload()">Upload</button>
 <button onclick="loadCars()">Load Cars</button>
 <button onclick="removeBg()">Remove BG</button>
+<button onclick="getMM()">Get make and model</button>
 
 <div id="gallery"></div>
 
@@ -103,6 +104,25 @@ async function removeBg() {
     });
 
     await loadCars();
+    setLoading(false);
+}
+
+async function getMM() {
+    if (!selectedCar || loading) {
+        alert("Select a car first");
+        return;
+    }
+
+    setLoading(true);
+
+    await fetch("http://localhost:5000/get-mm", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ car_id: selectedCar })
+    });
+
     setLoading(false);
 }
 </script>

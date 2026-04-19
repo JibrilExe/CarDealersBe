@@ -13,6 +13,10 @@ from flask_cors import CORS
 import replicate
 import requests
 import time
+from PIL import Image
+import types
+from pydantic import BaseModel
+from google import genai
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 app = Flask(__name__, static_url_path='/static')
@@ -22,6 +26,14 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 conn = None
 cursor = None
+
+#VMMR (vehicle make model recognition) return variables
+class CarInfo(BaseModel):
+    make: str
+    model: str
+    year: str
+
+GEMINI_KEY = os.getenv("GEMINI_API_TOKEN")
 
 def init_db():
     global conn, cursor
@@ -76,6 +88,31 @@ def remove_background(image_path: str, output_path: str):
             f.write(r.content)
 
     return output_path
+
+def get_car_mm(image_path: str):
+    """
+    Takes a local file path, asks google gemini to get make and model of vehicle.
+    """
+
+    client = genai.Client(api_key=GEMINI_KEY)
+
+    img = Image.open(image_path)
+
+    # 2. Send the bytes directly
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        contents=[
+            img,
+            "Identify the make model and build year of this vehicle"
+        ],
+        config={
+            "response_mime_type": "application/json",
+            "response_schema": CarInfo,
+        },
+    ) 
+
+    product = response.parsed
+    return product
 
 @app.route("/upload", methods=["POST"])
 def upload():
@@ -149,6 +186,27 @@ def remove_bg():
     conn.commit()
 
     return jsonify({"bg_removed_url": bg_removed_url})
+
+@app.route("/get-mm", methods=["POST"])
+def get_MM():
+    car_id = request.json.get("car_id")
+
+    cursor.execute("SELECT image_url FROM cars WHERE id = %s", (car_id,))
+    row = cursor.fetchone()
+
+    if not row:
+        return jsonify({"error": "Car not found"}), 404
+
+    image_url = row[0]
+    filepath = image_url.replace("/static/", "static/")
+
+    removed_filename = f"{car_id}_nobg.png"
+    removed_path = f"static/uploads/{removed_filename}"
+
+    product = get_car_mm(filepath)
+
+    return jsonify({"details": product.make})
+
 
 
 

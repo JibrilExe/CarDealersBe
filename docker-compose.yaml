@@ -25,6 +25,7 @@ services:
     environment:
       DATABASE_URL: postgresql://user:password@db:5432/cars
       REPLICATE_API_TOKEN: ${REPLICATE_API_TOKEN}
+      GEMINI_API_TOKEN: ${GEMINI_API_TOKEN}
     env_file:
       - .env
     depends_on:
