@@ -114,17 +114,40 @@ function renderCollection(cars) {
     el.innerHTML = "";
 
     cars.forEach(car => {
+        const card = document.createElement("div");
+        card.className = "car-card";
+
+        if (selectedCar === car.id) {
+            card.classList.add("selected");
+        }
+
         const img = document.createElement("img");
         img.src = "http://localhost:5000" + (car.bg_removed_url || car.image_url);
         img.className = "car";
 
-        img.draggable = true;
+        const info = document.createElement("div");
+        info.className = "car-info";
+        info.innerHTML = `
+            <b>${car.make || "Unknown"} ${car.model || ""}</b><br>
+            Year: ${car.year || "-"}<br>
+            Power: ${car.power ? car.power + " hp" : "-"}
+        `;
 
-        img.ondragstart = (e) => {
-            e.dataTransfer.setData("carId", car.id);
+        card.onclick = () => {
+            selectedCar = car.id;
+            loadCars();
         };
 
-        el.appendChild(img);
+        card.draggable = true;
+
+        card.ondragstart = (e) => {
+            e.dataTransfer.setData("text/plain", car.id);
+            e.dataTransfer.effectAllowed = "move";
+        };
+
+        card.appendChild(img);
+        card.appendChild(info);
+        el.appendChild(card);
     });
 }
 
@@ -133,11 +156,15 @@ function setupGarageDrop() {
 
     garage.ondragover = (e) => e.preventDefault();
 
+    garage.ondragenter = () => garage.classList.add("drag-over");
+    garage.ondragleave = () => garage.classList.remove("drag-over");
+
     garage.ondrop = async (e) => {
         e.preventDefault();
+        garage.classList.remove("drag-over");
 
-        const carId = e.dataTransfer.getData("carId");
-
+        const carId = e.dataTransfer.getData("text/plain");
+        console.log("Dropped carId:", carId);
         const rect = garage.getBoundingClientRect();
 
         const x = e.clientX - rect.left;
@@ -158,10 +185,11 @@ function renderGarage(cars) {
     garage.innerHTML = "";
 
     cars.forEach(car => {
+        console.log("Car coords: ", car.x, car.y);
         if (car.x == null || car.y == null) return;
 
         const img = document.createElement("img");
-        img.src = "http://localhost:5000" + car.image_url;
+        img.src = "http://localhost:5000" + (car.bg_removed_url || car.image_url);
         img.className = "car";
 
         img.style.left = car.x + "px";
@@ -172,3 +200,4 @@ function renderGarage(cars) {
 }
 
 loadCars();
+setupGarageDrop();

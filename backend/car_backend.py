@@ -49,7 +49,7 @@ def init_db():
         cc FLOAT,
         cylinders INTEGER,
         x FLOAT,
-        y FLOAT  
+        y FLOAT
     )
     """)
     conn.commit()
@@ -102,7 +102,7 @@ def upload():
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, x, y FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -115,7 +115,9 @@ def get_cars():
             "make": r[3],
             "model": r[4],
             "year": r[5],
-            "power": r[6]
+            "power": r[6],
+            "x": r[7],
+            "y": r[8]
         }
         for r in rows
     ]
