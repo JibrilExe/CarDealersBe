@@ -5,18 +5,12 @@ store images in filesystem, use ids as names
 """
 
 from flask import Flask, request, jsonify
-import os
 import uuid
 import os
 import psycopg2
 from flask_cors import CORS
-import replicate
-import requests
 import time
-from PIL import Image
-import types
-from pydantic import BaseModel
-from google import genai
+from helpers import remove_background, get_car_mm
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 app = Flask(__name__, static_url_path='/static')
@@ -26,14 +20,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 conn = None
 cursor = None
-
-#VMMR (vehicle make model recognition) return variables
-class CarInfo(BaseModel):
-    make: str
-    model: str
-    year: str
-
-GEMINI_KEY = os.getenv("GEMINI_API_TOKEN")
 
 def init_db():
     global conn, cursor
@@ -52,67 +38,40 @@ def init_db():
         id TEXT PRIMARY KEY,
         session_id TEXT,
         image_url TEXT,
-        bg_removed_url TEXT
+        bg_removed_url TEXT,
+        make TEXT,
+        model TEXT,
+        year TEXT,
+        acceleration FLOAT,
+        power FLOAT,
+        color TEXT,
+        cc FLOAT,
+        cylinders INTEGER,
+        x FLOAT,
+        y FLOAT
     )
     """)
     conn.commit()
 
 init_db()
 
-def remove_background(image_path: str, output_path: str):
-    """
-    Takes a local file path, runs AI background removal,
-    saves result to output_path, returns output_path.
-    """
+@app.route("/place-car", methods=["POST"])
+def place_car():
+    data = request.json
+    car_id = data["car_id"]
+    x = data["x"]
+    y = data["y"]
 
-    # Upload local file as file-like object
-    with open(image_path, "rb") as file:
-        output = replicate.run(
-            "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003",
-            input={
-                "image": file
-            }
-        )
+    cursor.execute("""
+        UPDATE cars
+        SET x = %s, y = %s
+        WHERE id = %s
+    """, (x, y, car_id))
 
-    # replicate returns a URL or file-like object depending on model
-    # safest way: handle both cases
+    conn.commit()
 
-    if hasattr(output, "read"):
-        # file-like
-        with open(output_path, "wb") as f:
-            f.write(output.read())
-    else:
-        # URL case
-        r = requests.get(output.url)
-        with open(output_path, "wb") as f:
-            f.write(r.content)
+    return jsonify({"ok": True})
 
-    return output_path
-
-def get_car_mm(image_path: str):
-    """
-    Takes a local file path, asks google gemini to get make and model of vehicle.
-    """
-
-    client = genai.Client(api_key=GEMINI_KEY)
-
-    img = Image.open(image_path)
-
-    # 2. Send the bytes directly
-    response = client.models.generate_content(
-        model="gemini-3-flash-preview",
-        contents=[
-            img,
-            "Identify the make model and build year of this vehicle"
-        ],
-        config={
-            "response_mime_type": "application/json",
-            "response_schema": CarInfo,
-        },
-    ) 
-
-    product = response.parsed
-    return product
 
 @app.route("/upload", methods=["POST"])
 def upload():
@@ -143,7 +102,7 @@ def upload():
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, x, y FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -152,7 +111,13 @@ def get_cars():
         {
             "id": r[0],
             "image_url": r[1],
-            "bg_removed_url": r[2]
+            "bg_removed_url": r[2],
+            "make": r[3],
+            "model": r[4],
+            "year": r[5],
+            "power": r[6],
+            "x": r[7],
+            "y": r[8]
         }
         for r in rows
     ]
@@ -187,6 +152,7 @@ def remove_bg():
 
     return jsonify({"bg_removed_url": bg_removed_url})
 
+
 @app.route("/get-mm", methods=["POST"])
 def get_MM():
     car_id = request.json.get("car_id")
@@ -206,8 +172,6 @@ def get_MM():
     product = get_car_mm(filepath)
 
     return jsonify({"details": product.make})
-
-
 
 
 if __name__ == "__main__":
