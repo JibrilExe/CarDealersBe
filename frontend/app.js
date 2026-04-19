@@ -1,29 +1,3 @@
-<input type="file" id="fileInput" />
-
-<button onclick="upload()">Upload</button>
-<button onclick="loadCars()">Load Cars</button>
-<button onclick="removeBg()">Remove BG</button>
-
-<div id="gallery"></div>
-
-<div id="loading" style="display:none;">Processing...</div>
-
-<style>
-.car {
-    width: 200px;
-    margin: 10px;
-    cursor: pointer;
-    border: 3px solid transparent;
-    border-radius: 8px;
-}
-
-.car.selected {
-    border: 3px solid #00aaff;
-    box-shadow: 0 0 10px rgba(0,170,255,0.5);
-}
-</style>
-
-<script>
 let session_id = localStorage.getItem("session_id");
 let selectedCar = null;
 let loading = false;
@@ -65,24 +39,33 @@ async function loadCars() {
     gallery.innerHTML = "";
 
     cars.forEach(car => {
-        const img = document.createElement("img");
+        const card = document.createElement("div");
+        card.className = "car-card";
 
-        const url = car.bg_removed_url || car.image_url;
-
-        img.src = "http://localhost:5000" + url;
-        img.className = "car";
-
-        // highlight selected
         if (selectedCar === car.id) {
-            img.classList.add("selected");
+            card.classList.add("selected");
         }
 
-        img.onclick = () => {
+        const img = document.createElement("img");
+        img.src = "http://localhost:5000" + (car.bg_removed_url || car.image_url);
+        img.className = "car";
+
+        const info = document.createElement("div");
+        info.className = "car-info";
+        info.innerHTML = `
+            <b>${car.make || "Unknown"} ${car.model || ""}</b><br>
+            Year: ${car.year || "-"}<br>
+            Power: ${car.power ? car.power + " hp" : "-"}
+        `;
+
+        card.onclick = () => {
             selectedCar = car.id;
-            loadCars(); // refresh UI highlight
+            loadCars();
         };
 
-        gallery.appendChild(img);
+        card.appendChild(img);
+        card.appendChild(info);
+        gallery.appendChild(card);
     });
 }
 
@@ -96,13 +79,10 @@ async function removeBg() {
 
     await fetch("http://localhost:5000/remove-bg", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ car_id: selectedCar })
     });
 
     await loadCars();
     setLoading(false);
 }
-</script>

@@ -10,9 +10,8 @@ import uuid
 import os
 import psycopg2
 from flask_cors import CORS
-import replicate
-import requests
 import time
+from helpers import remove_background
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 app = Flask(__name__, static_url_path='/static')
@@ -40,42 +39,20 @@ def init_db():
         id TEXT PRIMARY KEY,
         session_id TEXT,
         image_url TEXT,
-        bg_removed_url TEXT
+        bg_removed_url TEXT,
+        make TEXT,
+        model TEXT,
+        year TEXT,
+        acceleration FLOAT,
+        power FLOAT,
+        color TEXT,
+        cc FLOAT,
+        cylinders INTEGER  
     )
     """)
     conn.commit()
 
 init_db()
-
-def remove_background(image_path: str, output_path: str):
-    """
-    Takes a local file path, runs AI background removal,
-    saves result to output_path, returns output_path.
-    """
-
-    # Upload local file as file-like object
-    with open(image_path, "rb") as file:
-        output = replicate.run(
-            "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003",
-            input={
-                "image": file
-            }
-        )
-
-    # replicate returns a URL or file-like object depending on model
-    # safest way: handle both cases
-
-    if hasattr(output, "read"):
-        # file-like
-        with open(output_path, "wb") as f:
-            f.write(output.read())
-    else:
-        # URL case
-        r = requests.get(output.url)
-        with open(output_path, "wb") as f:
-            f.write(r.content)
-
-    return output_path
 
 @app.route("/upload", methods=["POST"])
 def upload():
@@ -106,7 +83,7 @@ def upload():
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -115,7 +92,11 @@ def get_cars():
         {
             "id": r[0],
             "image_url": r[1],
-            "bg_removed_url": r[2]
+            "bg_removed_url": r[2],
+            "make": r[3],
+            "model": r[4],
+            "year": r[5],
+            "power": r[6]
         }
         for r in rows
     ]
