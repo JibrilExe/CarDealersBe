@@ -1,36 +1,124 @@
-.car-card {
-    position: relative;
-    display: inline-block;
-    margin: 10px;
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial;
+}
+
+#topBar {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 10;
+
+    box-sizing: border-box; /* 🔥 fix */
+}
+
+#garage {
+    position: absolute;
+    top: 60px;
+    bottom: 120px;
+    left: 0;
+    right: 0;
+
+    /* 👇 better visual */
+    background: radial-gradient(circle at center, #1b1b1b 0%, #0d0d0d 100%);
+
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+
+    overflow: hidden;
+}
+
+#collection {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+
+    padding: 10px;
+    background: #222;
+}
+
+#collection img {
+    flex: 0 0 auto;
+    width: 200px;
+    height: 130px;
+    object-fit: cover;
+
+    border-radius: 10px;
+    margin-right: 10px;
+
+    cursor: grab;
+    transition: transform 0.15s ease;
+}
+
+#collection img:hover {
+    transform: scale(1.08);
 }
 
 .car {
-    width: 200px;
-    cursor: pointer;
-    border-radius: 8px;
+    width: 100px;
+    margin: 5px;
+    cursor: grab;
+    border-radius: 6px;
+}
+
+.car-card {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
 }
 
 .car-info {
     position: absolute;
-    bottom: 8px;
-    left: 8px;
-    right: 8px;
+    bottom: 6px;
+    left: 6px;
+    right: 6px;
 
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 6px;
     font-size: 12px;
 
-    opacity: 0;
-    transition: 0.2s;
     border-radius: 6px;
+
+    opacity: 0;              /* 🔥 hidden by default */
+    transform: translateY(5px);
+    transition: 0.2s ease;
+    pointer-events: none;    /* prevents hover weirdness */
 }
 
+/* 🔥 show on hover */
 .car-card:hover .car-info {
     opacity: 1;
+    transform: translateY(0);
 }
 
-.car-card.selected {
-    outline: 3px solid #00aaff;
-    border-radius: 8px;
+
+#garage img {
+    position: absolute;
+
+    width: 260px;   /* 🔥 bigger than collection */
+    height: auto;
+
+    cursor: grab;
+
+    border-radius: 10px;
+
+    filter: drop-shadow(0 8px 12px rgba(0,0,0,0.6));
+}
+
+#garage.drag-over {
+    background: #1a1a1a;
+    outline: 2px dashed #00aaff;
 }

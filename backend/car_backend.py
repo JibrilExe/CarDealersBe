@@ -47,12 +47,31 @@ def init_db():
         power FLOAT,
         color TEXT,
         cc FLOAT,
-        cylinders INTEGER  
+        cylinders INTEGER,
+        x FLOAT,
+        y FLOAT
     )
     """)
     conn.commit()
 
 init_db()
+
+@app.route("/place-car", methods=["POST"])
+def place_car():
+    data = request.json
+    car_id = data["car_id"]
+    x = data["x"]
+    y = data["y"]
+
+    cursor.execute("""
+        UPDATE cars
+        SET x = %s, y = %s
+        WHERE id = %s
+    """, (x, y, car_id))
+
+    conn.commit()
+
+    return jsonify({"ok": True})
 
 @app.route("/upload", methods=["POST"])
 def upload():
@@ -83,7 +102,7 @@ def upload():
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, x, y FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -96,7 +115,9 @@ def get_cars():
             "make": r[3],
             "model": r[4],
             "year": r[5],
-            "power": r[6]
+            "power": r[6],
+            "x": r[7],
+            "y": r[8]
         }
         for r in rows
     ]
