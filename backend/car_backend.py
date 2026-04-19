@@ -40,7 +40,15 @@ def init_db():
         id TEXT PRIMARY KEY,
         session_id TEXT,
         image_url TEXT,
-        bg_removed_url TEXT
+        bg_removed_url TEXT,
+        make TEXT,
+        model TEXT,
+        year TEXT,
+        acceleration FLOAT,
+        power FLOAT,
+        color TEXT,
+        cc FLOAT,
+        cylinders INTEGER  
     )
     """)
     conn.commit()
@@ -106,7 +114,7 @@ def upload():
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -115,7 +123,11 @@ def get_cars():
         {
             "id": r[0],
             "image_url": r[1],
-            "bg_removed_url": r[2]
+            "bg_removed_url": r[2],
+            "make": r[3],
+            "model": r[4],
+            "year": r[5],
+            "power": r[6]
         }
         for r in rows
     ]
