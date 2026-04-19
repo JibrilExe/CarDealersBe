@@ -78,24 +78,71 @@ def upload():
     file = request.files["image"]
     session_id = request.form.get("session_id")
 
-    filename = f"{uuid.uuid4()}.png"
+    car_id = str(uuid.uuid4())
+
+    # 1. Save original image
+    filename = f"{car_id}.png"
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
 
-    car = {
-        "id": str(uuid.uuid4()),
-        "session_id": session_id,
-        "image_url": f"/static/uploads/{filename}",
-        "bg_removed_url": None
-    }
+    image_url = f"/static/uploads/{filename}"
+    processed_path = filepath
+    # 2. Try background removal immediately
+    bg_removed_url = None
+    try:
+        removed_filename = f"{car_id}_nobg.png"
+        removed_path = os.path.join(UPLOAD_FOLDER, removed_filename)
 
-    cursor.execute(
-        "INSERT INTO cars (id, session_id, image_url) VALUES (%s, %s, %s)",
-        (car["id"], car["session_id"], car["image_url"])
-    )
+        remove_background(filepath, removed_path)
+
+        bg_removed_url = f"/static/uploads/{removed_filename}"
+        processed_path = removed_path
+    except Exception as e:
+        print("BG removal failed:", e)
+
+    make = None
+    model = None
+    year = None
+
+    # 3. Try to get car info from gemini
+    try:
+        car_info = get_car_mm(processed_path)
+        make = car_info.make
+        model = car_info.model
+        year = car_info.year
+
+    except Exception as e:
+        print("Gemini failed:", e)
+
+    # 4. Store everything
+    cursor.execute("""
+        INSERT INTO cars (
+            id, session_id,
+            image_url, bg_removed_url,
+            make, model, year
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """, (
+        car_id,
+        session_id,
+        image_url,
+        bg_removed_url,
+        make,
+        model,
+        year
+    ))
+
     conn.commit()
 
-    return jsonify(car)
+    return jsonify({
+        "id": car_id,
+        "session_id": session_id,
+        "image_url": image_url,
+        "bg_removed_url": bg_removed_url,
+        "make": make,
+        "model": model,
+        "year": year
+    })
 
 
 @app.route("/cars", methods=["GET"])
@@ -122,56 +169,6 @@ def get_cars():
         for r in rows
     ]
     return jsonify(cars)
-
-
-@app.route("/remove-bg", methods=["POST"])
-def remove_bg():
-    car_id = request.json.get("car_id")
-
-    cursor.execute("SELECT image_url FROM cars WHERE id = %s", (car_id,))
-    row = cursor.fetchone()
-
-    if not row:
-        return jsonify({"error": "Car not found"}), 404
-
-    image_url = row[0]
-    filepath = image_url.replace("/static/", "static/")
-
-    removed_filename = f"{car_id}_nobg.png"
-    removed_path = f"static/uploads/{removed_filename}"
-
-    remove_background(filepath, removed_path)
-
-    bg_removed_url = f"/static/uploads/{removed_filename}"
-
-    cursor.execute(
-        "UPDATE cars SET bg_removed_url = %s WHERE id = %s",
-        (bg_removed_url, car_id)
-    )
-    conn.commit()
-
-    return jsonify({"bg_removed_url": bg_removed_url})
-
-
-@app.route("/get-mm", methods=["POST"])
-def get_MM():
-    car_id = request.json.get("car_id")
-
-    cursor.execute("SELECT image_url FROM cars WHERE id = %s", (car_id,))
-    row = cursor.fetchone()
-
-    if not row:
-        return jsonify({"error": "Car not found"}), 404
-
-    image_url = row[0]
-    filepath = image_url.replace("/static/", "static/")
-
-    removed_filename = f"{car_id}_nobg.png"
-    removed_path = f"static/uploads/{removed_filename}"
-
-    product = get_car_mm(filepath)
-
-    return jsonify({"details": product.make})
 
 
 if __name__ == "__main__":
