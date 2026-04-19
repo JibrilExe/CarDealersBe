@@ -107,6 +107,15 @@ body {
 
 #garage img {
     position: absolute;
+
+    width: 260px;   /* 🔥 bigger than collection */
+    height: auto;
+
+    cursor: grab;
+
+    border-radius: 10px;
+
+    filter: drop-shadow(0 8px 12px rgba(0,0,0,0.6));
 }
 
 #garage.drag-over {

@@ -195,6 +195,20 @@ function renderGarage(cars) {
         img.style.left = car.x + "px";
         img.style.top = car.y + "px";
 
+        img.onclick = async () => {
+            await fetch("http://localhost:5000/place-car", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    car_id: car.id,
+                    x: null,
+                    y: null
+                })
+            });
+
+            loadCars();
+        };
+
         garage.appendChild(img);
     });
 }
