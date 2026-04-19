@@ -9,17 +9,41 @@
 <div id="loading" style="display:none;">Processing...</div>
 
 <style>
+.car-card {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+}
+
 .car {
     width: 200px;
-    margin: 10px;
     cursor: pointer;
-    border: 3px solid transparent;
     border-radius: 8px;
 }
 
-.car.selected {
-    border: 3px solid #00aaff;
-    box-shadow: 0 0 10px rgba(0,170,255,0.5);
+.car-info {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 6px;
+    font-size: 12px;
+
+    opacity: 0;
+    transition: 0.2s;
+    border-radius: 6px;
+}
+
+.car-card:hover .car-info {
+    opacity: 1;
+}
+
+.car-card.selected {
+    outline: 3px solid #00aaff;
+    border-radius: 8px;
 }
 </style>
 
@@ -65,24 +89,37 @@ async function loadCars() {
     gallery.innerHTML = "";
 
     cars.forEach(car => {
-        const img = document.createElement("img");
+        // container
+        const card = document.createElement("div");
+        card.className = "car-card";
 
-        const url = car.bg_removed_url || car.image_url;
-
-        img.src = "http://localhost:5000" + url;
-        img.className = "car";
-
-        // highlight selected
         if (selectedCar === car.id) {
-            img.classList.add("selected");
+            card.classList.add("selected");
         }
 
-        img.onclick = () => {
+        // image
+        const img = document.createElement("img");
+        img.src = "http://localhost:5000" + (car.bg_removed_url || car.image_url);
+        img.className = "car";
+
+        // hover info
+        const info = document.createElement("div");
+        info.className = "car-info";
+        info.innerHTML = `
+            <b>${car.make || "Unknown"} ${car.model || ""}</b><br>
+            Year: ${car.year || "-"}<br>
+            Power: ${car.power ? car.power + " hp" : "-"}
+        `;
+
+        // click selection
+        card.onclick = () => {
             selectedCar = car.id;
-            loadCars(); // refresh UI highlight
+            loadCars();
         };
 
-        gallery.appendChild(img);
+        card.appendChild(img);
+        card.appendChild(info);
+        gallery.appendChild(card);
     });
 }
 
