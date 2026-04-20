@@ -1,4 +1,5 @@
 import { updateXY, fetchCars } from "./api.js";
+import { renderChart, removeChart, METRICS, activeCharts, refreshCharts } from "./charters.js";
 
 const BASE = "http://localhost:5001";
 
@@ -75,6 +76,7 @@ function renderGarage(cars, session_id) {
 function updateGarageValue(cars) {
     const display = document.getElementById("totalValueDisplay");    
     const garageCars = cars.filter(c => c.x != null && c.y != null);
+    refreshCharts(garageCars);
     const total = garageCars.reduce((sum, car) => sum + (parseFloat(car.eur_value) || 0), 0);
     const formatted = "€" + total.toLocaleString();
     display.textContent = formatted;

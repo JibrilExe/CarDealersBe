@@ -49,11 +49,15 @@
     <input type="file" id="bgInput" style="display:none;" accept="image/*" />
 
     <div id="sidePanel" class="side-panel">
-        <h2>Menu</h2>
-        <p>This is your sliding window content.</p>
+        <h2>Garage Stats</h2>
+        <div id="metricSelectors" style="display: flex; flex-direction: column; gap: 5px;">
+            </div>
+        <div id="chartContainer" style="margin-top: 20px;">
+            </div>
     </div>
 
     <button id="sidePanelButton" class="sidePanelButton">◀</button>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="app.js"></script>
 </body>
 

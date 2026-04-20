@@ -1,5 +1,6 @@
 import { uploadCars, fetchCars, removeBackground, updateXY } from "./api.js";
 import { loadCars } from "./render.js"
+import { initSidePanel } from "./charters.js"
 
 let session_id = localStorage.getItem("session_id");
 let selectedCar = null;
@@ -7,7 +8,6 @@ let loading = false;
 
 document.getElementById("fileInput").addEventListener("change", handleFileSelect);
 document.getElementById("uploadBtn").addEventListener("click", uploadClick);
-
 
 if (!session_id) {
     session_id = crypto.randomUUID();
@@ -161,6 +161,8 @@ document.getElementById("closeRace").onclick = () => {
     document.getElementById("raceResult").innerHTML = "";
 };
 document.getElementById("raceBtn").addEventListener("click", race);
+
+initSidePanel();
 loadCars(session_id);
 setupGarageDrop();
 
