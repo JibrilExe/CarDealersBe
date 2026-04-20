@@ -13,9 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
+    build: ./backend
     container_name: flask_backend
     restart: always
     ports:
@@ -31,6 +29,13 @@ services:
       - db
     volumes:
       - ./static:/app/static
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"  # -> forwards to http://localhost:8080
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:

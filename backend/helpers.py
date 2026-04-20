@@ -49,14 +49,13 @@ def get_car_mm(image_path: str):
         config={
             "response_mime_type": "application/json",
             "response_schema": CarInfo,
-            "system_instruction": system_prompt, # Added here
-            "temperature": 0.2, # Lower temperature helps keep output focused
+            "system_instruction": system_prompt,
+            "temperature": 0.2, # Lower temperature helps keep output focused? Not tested yet
         },
     ) 
 
-    # --- DEBUGGING BLOCK ---
+    # --- DEBUGGING BLOCK --- # TODO: remove debug prints for final submission?
     print("\n--- RAW GEMINI RESPONSE ---")
-    # This will print the exact JSON the model sent back
     print(response.text, flush=True)
     print("---------------------------\n")
 
