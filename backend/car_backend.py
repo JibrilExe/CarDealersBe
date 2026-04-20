@@ -45,8 +45,9 @@ def init_db():
         acceleration FLOAT,
         power FLOAT,
         color TEXT,
-        cc FLOAT,
+        displacement FLOAT,
         cylinders INTEGER,
+        is_electric BOOLEAN,
         x FLOAT,
         y FLOAT
     )
@@ -100,16 +101,18 @@ def upload():
     except Exception as e:
         print("BG removal failed:", e)
 
-    make = None
-    model = None
-    year = None
-
+    make = model = year = displacement = cylinders = power = acceleration = isElectric = None
     # 3. Try to get car info from gemini
     try:
         car_info = get_car_mm(processed_path)
         make = car_info.make
         model = car_info.model
         year = car_info.year
+        displacement = car_info.displacement
+        cylinders = car_info.cylinders
+        power = car_info.power
+        acceleration = car_info.zeroto100
+        isElectric = car_info.electric
 
     except Exception as e:
         print("Gemini failed:", e)
@@ -119,9 +122,10 @@ def upload():
         INSERT INTO cars (
             id, session_id,
             image_url, bg_removed_url,
-            make, model, year
+            make, model, year,
+            acceleration, power, displacement, cylinders, is_electric
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         car_id,
         session_id,
@@ -129,7 +133,12 @@ def upload():
         bg_removed_url,
         make,
         model,
-        year
+        year,
+        acceleration,
+        power,
+        displacement,
+        cylinders,
+        isElectric
     ))
 
     conn.commit()
@@ -141,7 +150,12 @@ def upload():
         "bg_removed_url": bg_removed_url,
         "make": make,
         "model": model,
-        "year": year
+        "year": year,
+        "displacement": displacement,
+        "cylinders": cylinders,
+        "power": power,
+        "acceleration": acceleration,
+        "isElectric": isElectric
     })
 
 
@@ -149,7 +163,7 @@ def upload():
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power, x, y FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -163,8 +177,9 @@ def get_cars():
             "model": r[4],
             "year": r[5],
             "power": r[6],
-            "x": r[7],
-            "y": r[8]
+            "is_electric": r[7],
+            "x": r[8],
+            "y": r[9],
         }
         for r in rows
     ]
