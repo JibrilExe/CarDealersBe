@@ -13,6 +13,12 @@ class CarInfo(BaseModel):
     make: str
     model: str
     year: str
+    displacement: int
+    cylinders: int
+    power: int
+    zeroto100: int
+    electric: bool
+
 
 def get_car_mm(image_path: str):
     """
@@ -28,7 +34,7 @@ def get_car_mm(image_path: str):
         model="gemini-3-flash-preview",
         contents=[
             img,
-            "Identify the make model and build year of this vehicle"
+            "Identify the make model and build year of this vehicle. From this build model and year can you also find the engine displacement, the number of cylinders, the power of the engine in kW, the 0-100km/h time and if the vehicle is electric if any of these values have multiple anwsers pick the most common one"
         ],
         config={
             "response_mime_type": "application/json",
