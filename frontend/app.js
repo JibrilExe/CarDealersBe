@@ -98,9 +98,7 @@ function race() {
         return;
     }
 
-    const [c1, c2] = garageCars;
-
-    openRaceModal(c1, c2);
+    openRaceModal(garageCars[0], garageCars[1]);
 }
 
 function openRaceModal(car1, car2) {
@@ -123,7 +121,6 @@ function startRace(c1, c2) {
     const acc1 = c1.acceleration || 10;
     const acc2 = c2.acceleration || 10;
 
-    // lower = faster → convert to speed
     const speed1 = 1 / acc1;
     const speed2 = 1 / acc2;
     console.log(speed1, speed2);
@@ -153,6 +150,7 @@ function startRace(c1, c2) {
 
 document.getElementById("closeRace").onclick = () => {
     document.getElementById("raceModal").classList.add("hidden");
+    document.getElementById("raceResult").innerHTML = "";
 };
 document.getElementById("raceBtn").addEventListener("click", race);
 loadCars(session_id);

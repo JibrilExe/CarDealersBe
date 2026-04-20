@@ -17,7 +17,7 @@ class CarInfo(BaseModel):
     displacement: int
     cylinders: int
     power: int
-    zeroto100: int
+    zeroto100: float
     electric: bool
 
 
@@ -40,7 +40,7 @@ def get_car_mm(image_path: str):
     user_prompt = (
         "Identify the make, model, and build year of this vehicle. "
         "Based on this, provide the engine displacement, number of cylinders, "
-        "power in kW, and 0-100km/h time. If electric, fill in relevant fields."
+        "power in kW, and 0-100km/h time (in seconds formatted as a decimal number, e.g., 9.81). If electric, fill in relevant fields."
     )
 
     response = client.models.generate_content(
