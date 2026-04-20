@@ -81,6 +81,8 @@ def upload():
 
     car_id = str(uuid.uuid4())
 
+    print("TEST PRINT", flush=True)
+
     # 1. Save original image
     filename = f"{car_id}.png"
     filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -100,11 +102,14 @@ def upload():
         processed_path = removed_path
     except Exception as e:
         print("BG removal failed:", e)
+    
+    print("BG_REMOVAL WORKED", flush=True)
 
     make = model = year = displacement = cylinders = power = acceleration = isElectric = None
     # 3. Try to get car info from gemini
     try:
         car_info = get_car_mm(processed_path)
+        print(car_info, flush=True)
         make = car_info.make
         model = car_info.model
         year = car_info.year
@@ -115,7 +120,7 @@ def upload():
         isElectric = car_info.electric
 
     except Exception as e:
-        print("Gemini failed:", e)
+        print("Gemini failed:", e, flush=True)
 
     # 4. Store everything
     cursor.execute("""
@@ -163,7 +168,7 @@ def upload():
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -180,6 +185,7 @@ def get_cars():
             "is_electric": r[7],
             "x": r[8],
             "y": r[9],
+            "acceleration": r[10]
         }
         for r in rows
     ]

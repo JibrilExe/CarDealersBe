@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from google import genai
 
 GEMINI_KEY = os.getenv("GEMINI_API_TOKEN")
+GEMINI_API_PAID_TOKEN = os.getenv("GEMINI_API_PAID_TOKEN")
 
 #VMMR (vehicle make model recognition) return variables
 class CarInfo(BaseModel):
@@ -16,34 +17,49 @@ class CarInfo(BaseModel):
     displacement: int
     cylinders: int
     power: int
-    zeroto100: int
+    zeroto100: float
     electric: bool
 
 
 def get_car_mm(image_path: str):
-    """
-    Takes a local file path, asks google gemini to get make and model of vehicle.
-    """
+    print("IN CARMM", flush=True)
 
-    client = genai.Client(api_key=GEMINI_KEY)
-
+    client = genai.Client(api_key=GEMINI_API_PAID_TOKEN)
     img = Image.open(image_path)
+    
+    # 1. Define the behavior in system_instruction
+    system_prompt = (
+        "You are an expert automotive identification assistant. "
+        "Your task is to identify vehicle make, model, and year from images. "
+        "If you are not 100% certain, provide your best educated estimate based on visual cues. "
+        "Under no circumstances should you return 'unknown' if a plausible match exists. "
+        "Prioritize the most common engine and performance specifications for the identified model."
+    )
 
-    # 2. Send the bytes directly
+    # 2. Refine your request to be task-oriented
+    user_prompt = (
+        "Identify the make, model, and build year of this vehicle. "
+        "Based on this, provide the engine displacement, number of cylinders, "
+        "power in kW, and 0-100km/h time (in seconds formatted as a decimal number, e.g., 9.81). If electric, fill in relevant fields."
+    )
+
     response = client.models.generate_content(
-        model="gemini-3-flash-preview",
-        contents=[
-            img,
-            "Identify the make model and build year of this vehicle. From this build model and year can you also find the engine displacement, the number of cylinders, the power of the engine in kW, the 0-100km/h time and if the vehicle is electric if any of these values have multiple anwsers pick the most common one"
-        ],
+        model="gemini-3.1-pro-preview",
+        contents=[img, user_prompt],
         config={
             "response_mime_type": "application/json",
             "response_schema": CarInfo,
+            "system_instruction": system_prompt,
+            "temperature": 0.2, # Lower temperature helps keep output focused? Not tested yet
         },
     ) 
 
-    product = response.parsed
-    return product
+    # --- DEBUGGING BLOCK --- # TODO: remove debug prints for final submission?
+    print("\n--- RAW GEMINI RESPONSE ---")
+    print(response.text, flush=True)
+    print("---------------------------\n")
+
+    return response.parsed
 
 def remove_background(image_path: str, output_path: str):
     """

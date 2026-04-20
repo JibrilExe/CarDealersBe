@@ -76,7 +76,6 @@ function setupGarageDrop() {
         garage.classList.remove("drag-over");
 
         const carId = e.dataTransfer.getData("text/plain");
-        console.log("Dropped carId:", carId);
         const rect = garage.getBoundingClientRect();
 
         const x = e.clientX - rect.left;
@@ -87,72 +86,79 @@ function setupGarageDrop() {
     };
 }
 
-function race() {
-    const cars = window.currentCars || [];
-
-    console.log(cars);
-    const garageCars = cars.filter(c => c.x != null && c.y != null);
-
-    if (garageCars.length < 2) {
-        alert("Need at least 2 cars in garage");
-        return;
-    }
-
-    const [c1, c2] = garageCars;
-
-    openRaceModal(c1, c2);
-}
-
-function openRaceModal(car1, car2) {
+function openRaceModal(cars) {
     const modal = document.getElementById("raceModal");
+    const track = document.getElementById("raceTrack");
+    const resultDiv = document.getElementById("raceResult");
+    
+    // Clear previous
+    track.innerHTML = "";
+    resultDiv.innerHTML = "";
     modal.classList.remove("hidden");
 
-    const img1 = document.getElementById("car1");
-    const img2 = document.getElementById("car2");
+    const carElements = [];
+    cars.forEach((car, index) => {
+        const lane = document.createElement("div");
+        lane.className = "lane";
+        
+        const img = document.createElement("img");
+        img.src = "http://localhost:5001" + (car.bg_removed_url || car.image_url);
+        img.id = `race-car-${index}`;
+        
+        lane.appendChild(img);
+        lane.appendChild(document.createElement("div")).className = "flag"; // Finish line
+        track.appendChild(lane);
+        
+        carElements.push(img);
+    });
 
-    img1.src = "http://localhost:5001" + (car1.bg_removed_url || car1.image_url);
-    img2.src = "http://localhost:5001" + (car2.bg_removed_url || car2.image_url);
-
-    startRace(car1, car2);
+    startRace(cars, carElements);
 }
 
-function startRace(c1, c2) {
-    const car1El = document.getElementById("car1");
-    const car2El = document.getElementById("car2");
-
-    const acc1 = c1.acceleration || 10;
-    const acc2 = c2.acceleration || 10;
-
-    // lower = faster → convert to speed
-    const speed1 = 1 / acc1;
-    const speed2 = 1 / acc2;
-    console.log(speed1, speed2);
-
-    let pos1 = 0;
-    let pos2 = 0;
+function startRace(cars, carElements) {
+    const resultDiv = document.getElementById("raceResult");
+    const positions = new Array(cars.length).fill(0);
+    // Speed: Lower time (0-100) = Faster speed
+    const speeds = cars.map(c => (1 / (c.acceleration || 10)) * 20);
 
     const interval = setInterval(() => {
-        pos1 += speed1 * 5;
-        pos2 += speed2 * 5;
+        let finished = false;
 
-        car1El.style.left = pos1 + "%";
-        car2El.style.left = pos2 + "%";
+        cars.forEach((_, i) => {
+            positions[i] += speeds[i];
+            carElements[i].style.left = positions[i] + "%";
 
-        if (pos1 >= 90 || pos2 >= 90) {
+            if (positions[i] >= 90) finished = true;
+        });
+
+        if (finished) {
             clearInterval(interval);
+            
+            // Find who won (the one with the highest position or shortest time)
+            // Sorting cars by their zero-to-100 time
+            const sortedCars = [...cars].sort((a, b) => (a.acceleration || 10) - (b.acceleration || 10));
+            const winner = sortedCars[0];
 
-            const winner = pos1 > pos2 ? c1 : c2;
-
-            document.getElementById("raceResult").innerHTML = `
-                🏆 Winner: ${winner.make} ${winner.model}<br>
-                0-100: ${winner.acceleration}s
-            `;
+            resultDiv.innerHTML = `🏆 Winner: ${winner.make} ${winner.model} (${winner.acceleration}s)`;
         }
     }, 50);
 }
 
+function race() {
+    const cars = window.currentCars || [];
+    const garageCars = cars.filter(c => c.x != null && c.y != null);
+
+    if (garageCars.length < 2) {
+        alert("Need at least 2 cars to race!");
+        return;
+    }
+    console.log(garageCars);
+    openRaceModal(garageCars);
+}
+
 document.getElementById("closeRace").onclick = () => {
     document.getElementById("raceModal").classList.add("hidden");
+    document.getElementById("raceResult").innerHTML = "";
 };
 document.getElementById("raceBtn").addEventListener("click", race);
 loadCars(session_id);

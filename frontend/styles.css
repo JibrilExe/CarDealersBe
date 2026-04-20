@@ -249,23 +249,39 @@ body {
 .lane {
     position: relative;
     height: 80px;
-    margin: 30px 0;
     background: #222;
     border-radius: 10px;
+    width: 100%;
+    overflow: hidden;
 }
 
-/* cars */
+/* cars - properly contained */
 .lane img {
     position: absolute;
     left: 0;
-    top: 10px;
-    height: 60px;
+    top: 0;
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    padding: 5px;
 }
 
 /* finish flag */
 .flag {
     position: absolute;
-    right: 10px;
-    top: 10px;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%); /* Perfectly centers flag vertically */
     font-size: 24px;
+}
+
+#raceTrack {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px;
+    background: #111;
 }
