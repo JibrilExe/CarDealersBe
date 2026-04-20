@@ -27,9 +27,6 @@ function renderCollection(cars) {
         if(car.power){
             powerString = car.is_electric ? car.power + " kW" : Math.round(1.35962*car.power) + " hp"
         }
-        console.log(powerString);
-        console.log(car.power);
-        console.log(car.is_electric);
         const info = document.createElement("div");
         info.className = "car-info";
         info.innerHTML = `

@@ -12,9 +12,9 @@ RUN dpkg --add-architecture i386 && \
         cabextract \
         && rm -rf /var/lib/apt/lists/*
 
-COPY backend/requirements.txt .
+COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/ .
+COPY . /app/
 
 CMD ["python", "car_backend.py"]

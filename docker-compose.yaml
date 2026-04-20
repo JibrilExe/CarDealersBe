@@ -13,9 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
+    build: ./backend
     container_name: flask_backend
     restart: always
     ports:
@@ -24,12 +22,20 @@ services:
       DATABASE_URL: postgresql://user:password@db:5432/cars
       REPLICATE_API_TOKEN: ${REPLICATE_API_TOKEN}
       GEMINI_API_TOKEN: ${GEMINI_API_TOKEN}
+      GEMINI_API_PAID_TOKEN: ${GEMINI_API_PAID_TOKEN}
     env_file:
       - .env
     depends_on:
       - db
     volumes:
       - ./static:/app/static
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"  # -> forwards to http://localhost:8080
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
