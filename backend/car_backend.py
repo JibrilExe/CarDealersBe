@@ -162,6 +162,8 @@ def process_single_car(file, session_id):
         eur_value
     ))
 
+    write_engine(cylinders, car_id)
+
     conn.commit()
 
     return {

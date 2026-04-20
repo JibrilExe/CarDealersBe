@@ -322,10 +322,10 @@ public node main {
 }
 '''
 
-def write_engine(cylinders):
+def write_engine(cylinders, name):
     if(cylinders == 0):
         return
-    filepath = os.path.join(ENGINE_FOLDER, "engine.mr")
+    filepath = os.path.join(ENGINE_FOLDER, name+".mr")
     with open(filepath, "w") as f:
         f.write(code1)
         for i in range(cylinders):
