@@ -1,4 +1,4 @@
-import { uploadCar, fetchCars, removeBackground, updateXY } from "./api.js";
+import { uploadCars, fetchCars, removeBackground, updateXY } from "./api.js";
 import { loadCars } from "./render.js"
 
 let session_id = localStorage.getItem("session_id");
@@ -40,27 +40,26 @@ function uploadClick() {
 }
 
 async function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (!file || loading) return;
+    const files = Array.from(event.target.files);
+    if (files.length === 0 || loading) return;
 
     setLoading(true);
 
     try {
         const formData = new FormData();
-        formData.append("image", file);
+        files.forEach(file => {
+            formData.append("images", file); 
+        });
         formData.append("session_id", session_id);
-        const uploadRes = await uploadCar(formData);
-        const car = await uploadRes.json();
+        const response = await uploadCars(formData);
+        const newCars = await response.json();
         await loadCars(session_id);
 
     } catch (err) {
-        console.error("Upload failed", err);
+        console.error("Batch upload failed", err);
+    } finally {
+        setLoading(false);
     }
-
-    setLoading(false);
-
-    // reset input so same file can be re-selected later
-    event.target.value = "";
 }
 
 function setupGarageDrop() {
