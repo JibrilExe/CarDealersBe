@@ -1,4 +1,4 @@
-import { uploadCar, fetchCars, removeBackground } from "./api.js";
+import { uploadCar, fetchCars, removeBackground, updateXY } from "./api.js";
 
 let session_id = localStorage.getItem("session_id");
 let selectedCar = null;
@@ -27,39 +27,18 @@ async function upload() {
     formData.append("image", file);
     formData.append("session_id", session_id);
 
-    await fetch("http://localhost:5001/upload", {
-        method: "POST",
-        body: formData
-    });
+    const uploadRes = uploadCar(formData);
+    await uploadRes.json();
 
     await loadCars();
     setLoading(false);
 }
 
 async function loadCars() {
-    const res = await fetch(`http://localhost:5001/cars?session_id=${session_id}`);
-    const cars = await res.json();
+    const cars = await fetchCars(session_id);
 
     renderCollection(cars);
     renderGarage(cars);
-}
-
-async function removeBg() {
-    if (!selectedCar || loading) {
-        alert("Select a car first");
-        return;
-    }
-
-    setLoading(true);
-
-    await fetch("http://localhost:5001/remove-bg", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ car_id: selectedCar })
-    });
-
-    await loadCars();
-    setLoading(false);
 }
 
 function uploadClick() {
@@ -73,30 +52,11 @@ async function handleFileSelect(event) {
     setLoading(true);
 
     try {
-        // 1. Upload image
         const formData = new FormData();
         formData.append("image", file);
         formData.append("session_id", session_id);
-
-        const uploadRes = await fetch("http://localhost:5001/upload", {
-            method: "POST",
-            body: formData
-        });
-
+        const uploadRes = await uploadCar(formData);
         const car = await uploadRes.json();
-
-        // 2. Try remove background
-        try {
-            await fetch("http://localhost:5001/remove-bg", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ car_id: car.id })
-            });
-        } catch (err) {
-            console.warn("BG removal failed, keeping original image", err);
-        }
-
-        // 3. Reload UI (will show bg_removed if available)
         await loadCars();
 
     } catch (err) {
@@ -169,12 +129,7 @@ function setupGarageDrop() {
 
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-
-        await fetch("http://localhost:5001/place-car", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ car_id: carId, x, y })
-        });
+        await updateXY(carId, x, y);
 
         loadCars();
     };
@@ -196,16 +151,7 @@ function renderGarage(cars) {
         img.style.top = car.y + "px";
 
         img.onclick = async () => {
-            await fetch("http://localhost:5001/place-car", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    car_id: car.id,
-                    x: null,
-                    y: null
-                })
-            });
-
+            await updateXY(car.id, null, null);
             loadCars();
         };
 

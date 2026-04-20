@@ -19,3 +19,11 @@ export async function removeBackground(car_id) {
         body: JSON.stringify({ car_id })
     });
 }
+
+export async function updateXY(car_id, x, y){
+    return fetch(`${API}/place-car`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ car_id: car_id, x, y })
+    });
+}
