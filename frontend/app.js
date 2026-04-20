@@ -87,5 +87,73 @@ function setupGarageDrop() {
     };
 }
 
+function race() {
+    const cars = window.currentCars || [];
+
+    console.log(cars);
+    const garageCars = cars.filter(c => c.x != null && c.y != null);
+
+    if (garageCars.length < 2) {
+        alert("Need at least 2 cars in garage");
+        return;
+    }
+
+    const [c1, c2] = garageCars;
+
+    openRaceModal(c1, c2);
+}
+
+function openRaceModal(car1, car2) {
+    const modal = document.getElementById("raceModal");
+    modal.classList.remove("hidden");
+
+    const img1 = document.getElementById("car1");
+    const img2 = document.getElementById("car2");
+
+    img1.src = "http://localhost:5001" + (car1.bg_removed_url || car1.image_url);
+    img2.src = "http://localhost:5001" + (car2.bg_removed_url || car2.image_url);
+
+    startRace(car1, car2);
+}
+
+function startRace(c1, c2) {
+    const car1El = document.getElementById("car1");
+    const car2El = document.getElementById("car2");
+
+    const acc1 = c1.acceleration || 10;
+    const acc2 = c2.acceleration || 10;
+
+    // lower = faster → convert to speed
+    const speed1 = 1 / acc1;
+    const speed2 = 1 / acc2;
+    console.log(speed1, speed2);
+
+    let pos1 = 0;
+    let pos2 = 0;
+
+    const interval = setInterval(() => {
+        pos1 += speed1 * 5;
+        pos2 += speed2 * 5;
+
+        car1El.style.left = pos1 + "%";
+        car2El.style.left = pos2 + "%";
+
+        if (pos1 >= 90 || pos2 >= 90) {
+            clearInterval(interval);
+
+            const winner = pos1 > pos2 ? c1 : c2;
+
+            document.getElementById("raceResult").innerHTML = `
+                🏆 Winner: ${winner.make} ${winner.model}<br>
+                0-100: ${winner.acceleration}s
+            `;
+        }
+    }, 50);
+}
+
+document.getElementById("closeRace").onclick = () => {
+    document.getElementById("raceModal").classList.add("hidden");
+};
+document.getElementById("raceBtn").addEventListener("click", race);
 loadCars(session_id);
 setupGarageDrop();

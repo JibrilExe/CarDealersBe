@@ -1,3 +1,5 @@
+/* ----------------- MAIN SCREEN STYLE -------------------- */
+
 body {
     margin: 0;
     overflow: hidden;
@@ -198,4 +200,72 @@ body {
 .car-card:hover .car-info {
     opacity: 1;
     transform: translateY(0);
+}
+
+
+
+
+/* ----------------- RACE POP UP STYLE -------------------- */
+/* overlay */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.7);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.hidden {
+    display: none;
+}
+
+/* popup */
+.modal-content {
+    width: 80%;
+    height: 80%;
+
+    background: #111;
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+}
+
+/* close button */
+#closeRace {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+/* race lanes */
+.lane {
+    position: relative;
+    height: 80px;
+    margin: 30px 0;
+    background: #222;
+    border-radius: 10px;
+}
+
+/* cars */
+.lane img {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    height: 60px;
+}
+
+/* finish flag */
+.flag {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 24px;
 }
