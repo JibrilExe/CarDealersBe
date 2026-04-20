@@ -1,0 +1,64 @@
+import { updateXY, fetchCars } from "./api.js";
+
+const BASE = "http://localhost:5001";
+
+export async function loadCars(session_id) {
+    const cars = await fetchCars(session_id);
+
+    renderCollection(cars);
+    renderGarage(cars, session_id);
+}
+
+function renderCollection(cars) {
+    const el = document.getElementById("collection");
+    el.innerHTML = "";
+
+    cars.forEach(car => {
+        const card = document.createElement("div");
+        card.className = "car-card"; // for css
+
+        const img = document.createElement("img");
+        img.src = BASE + (car.bg_removed_url || car.image_url);
+        img.className = "car";
+
+        const info = document.createElement("div");
+        info.className = "car-info";
+        info.innerHTML = `
+            <b>${car.make || "Unknown"} ${car.model || ""}</b><br>
+            Year: ${car.year || "-"}<br>
+            Power: ${car.power ? car.power + " hp" : "-"}
+        `;
+
+        card.draggable = true;
+        card.ondragstart = (e) => {
+            e.dataTransfer.setData("text/plain", car.id);
+        };
+
+        card.appendChild(img);
+        card.appendChild(info);
+        el.appendChild(card);
+    });
+}
+
+function renderGarage(cars, session_id) {
+    const garage = document.getElementById("garage");
+    garage.innerHTML = "";
+
+    cars.forEach(car => {
+        if (car.x == null || car.y == null) return;
+
+        const img = document.createElement("img");
+        img.src = BASE + (car.bg_removed_url || car.image_url);
+        img.className = "car";
+
+        img.style.left = car.x + "px";
+        img.style.top = car.y + "px";
+
+        img.onclick = async () => {
+            await updateXY(car.id, null, null);
+            loadCars(session_id);
+        };
+
+        garage.appendChild(img);
+    });
+}
