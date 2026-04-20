@@ -9,6 +9,7 @@ export async function loadCars(session_id) {
 
     renderCollection(cars);
     renderGarage(cars, session_id);
+    updateGarageValue(cars);
 }
 
 function renderCollection(cars) {
@@ -27,15 +28,14 @@ function renderCollection(cars) {
         if(car.power){
             powerString = car.is_electric ? car.power + " kW" : Math.round(1.35962*car.power) + " hp"
         }
-        console.log(powerString);
-        console.log(car.power);
-        console.log(car.is_electric);
+        var eur_value = ( car.eur_value + "€" || "Unknown" ) 
         const info = document.createElement("div");
         info.className = "car-info";
         info.innerHTML = `
             <b>${car.make || "Unknown"} ${car.model || ""}</b><br>
             Year: ${car.year || "-"}<br>
-            Power: ${powerString}
+            Power: ${powerString}<br>
+            Est. value: ${eur_value}
         `;
 
         card.draggable = true;
@@ -70,4 +70,12 @@ function renderGarage(cars, session_id) {
 
         garage.appendChild(img);
     });
+}
+
+function updateGarageValue(cars) {
+    const display = document.getElementById("totalValueDisplay");    
+    const garageCars = cars.filter(c => c.x != null && c.y != null);
+    const total = garageCars.reduce((sum, car) => sum + (parseFloat(car.eur_value) || 0), 0);
+    const formatted = "€" + total.toLocaleString();
+    display.textContent = formatted;
 }

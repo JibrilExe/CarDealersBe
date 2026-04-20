@@ -49,7 +49,8 @@ def init_db():
         cylinders INTEGER,
         is_electric BOOLEAN,
         x FLOAT,
-        y FLOAT
+        y FLOAT,
+        eur_value FLOAT
     )
     """)
     conn.commit()
@@ -73,13 +74,26 @@ def place_car():
 
     return jsonify({"ok": True})
 
+from concurrent.futures import ThreadPoolExecutor
 
+# The Batch Route
 @app.route("/upload", methods=["POST"])
-def upload():
-    file = request.files["image"]
+def upload_batch():
+    files = request.files.getlist("images") # Get multiple files
     session_id = request.form.get("session_id")
 
+    # Use ThreadPoolExecutor to run process_single_car in parallel
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        # Create a list of arguments for the executor
+        results = list(executor.map(lambda f: process_single_car(f, session_id), files))
+
+    return jsonify(results)
+
+
+def process_single_car(file, session_id):
     car_id = str(uuid.uuid4())
+
+    print("TEST PRINT", flush=True)
 
     # 1. Save original image
     filename = f"{car_id}.png"
@@ -100,11 +114,14 @@ def upload():
         processed_path = removed_path
     except Exception as e:
         print("BG removal failed:", e)
+    
+    print("BG_REMOVAL WORKED", flush=True)
 
-    make = model = year = displacement = cylinders = power = acceleration = isElectric = None
+    make = model = year = displacement = cylinders = power = acceleration = isElectric = eur_value = None
     # 3. Try to get car info from gemini
     try:
         car_info = get_car_mm(processed_path)
+        print(car_info, flush=True)
         make = car_info.make
         model = car_info.model
         year = car_info.year
@@ -113,9 +130,10 @@ def upload():
         power = car_info.power
         acceleration = car_info.zeroto100
         isElectric = car_info.electric
+        eur_value = car_info.eur_value
 
     except Exception as e:
-        print("Gemini failed:", e)
+        print("Gemini failed:", e, flush=True)
 
     # 4. Store everything
     cursor.execute("""
@@ -123,9 +141,10 @@ def upload():
             id, session_id,
             image_url, bg_removed_url,
             make, model, year,
-            acceleration, power, displacement, cylinders, is_electric
+            acceleration, power, displacement,
+            cylinders, is_electric, eur_value
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         car_id,
         session_id,
@@ -138,12 +157,13 @@ def upload():
         power,
         displacement,
         cylinders,
-        isElectric
+        isElectric,
+        eur_value
     ))
 
     conn.commit()
 
-    return jsonify({
+    return {
         "id": car_id,
         "session_id": session_id,
         "image_url": image_url,
@@ -155,15 +175,16 @@ def upload():
         "cylinders": cylinders,
         "power": power,
         "acceleration": acceleration,
-        "isElectric": isElectric
-    })
+        "isElectric": isElectric,
+        "eur_value": eur_value
+    }
 
 
 @app.route("/cars", methods=["GET"])
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration, eur_value FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -180,6 +201,8 @@ def get_cars():
             "is_electric": r[7],
             "x": r[8],
             "y": r[9],
+            "acceleration": r[10],
+            "eur_value": r[11]
         }
         for r in rows
     ]

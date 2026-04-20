@@ -13,6 +13,7 @@
         <div class="left-buttons">
             <button class="action-btn race-btn" id="raceBtn">🏁 Race</button>
         </div>
+        <div id="totalValueDisplay">€0</div>
         <div class="right-buttons">
             <select id="bgSelect" class="action-btn bg-btn">
                 <button value="">🖼️ Kies Achtergrond</button>
@@ -29,6 +30,7 @@
     <div id="raceModal" class="modal hidden">
         <div class="modal-content">
             <button id="closeRace">✖</button>
+            <div id="raceResult"></div>
 
             <div id="raceTrack">
                 <div class="lane">
@@ -40,12 +42,10 @@
                     <div class="flag" id="flag2">🏁</div>
                 </div>
             </div>
-
-            <div id="raceResult"></div>
         </div>
     </div>
 
-    <input type="file" id="fileInput" style="display:none;" accept="image/*" />
+    <input type="file" id="fileInput" style="display:none;" accept="image/*" multiple />
     <input type="file" id="bgInput" style="display:none;" accept="image/*" />
 
     <div id="sidePanel" class="side-panel">
