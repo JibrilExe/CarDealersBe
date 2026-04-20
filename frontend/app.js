@@ -5,6 +5,7 @@ import { initSidePanel } from "./charters.js"
 let session_id = localStorage.getItem("session_id");
 let selectedCar = null;
 let loading = false;
+let loadingInterval;
 
 document.getElementById("fileInput").addEventListener("change", handleFileSelect);
 document.getElementById("uploadBtn").addEventListener("click", uploadClick);
@@ -14,9 +15,33 @@ if (!session_id) {
     localStorage.setItem("session_id", session_id);
 }
 
+
 function setLoading(state) {
-    loading = state;
-    document.getElementById("loading").style.display = state ? "block" : "none";
+    const el = document.getElementById("loading");
+
+    if (state) {
+        el.classList.remove("hidden");
+
+        const messages = [
+            "Removing background...",
+            "Analyzing vehicle...",
+            "Getting latest data...",
+            "Estimating value...",
+            "Almost done..."
+        ];
+
+        let i = 0;
+
+        loadingInterval = setInterval(() => {
+            document.getElementById("loadingText").innerText =
+                messages[i % messages.length];
+            i++;
+        }, 1500);
+
+    } else {
+        el.classList.add("hidden");
+        clearInterval(loadingInterval);
+    }
 }
 
 async function upload() {

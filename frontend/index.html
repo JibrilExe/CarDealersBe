@@ -21,7 +21,23 @@
             <button class="action-btn add-btn" id="uploadBtn">➕ Auto Toevoegen</button>
         </div>
     </div>
-    <div id="loading" style="display:none;">Processing...</div>
+    <div id="loading" class="loading-overlay hidden">
+        <div class="loading-box">
+            <div class="spinner">
+                <span>⚙️</span>
+                <span>✨</span>
+                <span>🚗</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+
+            <div id="loadingText" class="loading-text">
+                Processing...
+            </div>
+        </div>
+    </div>
 
     <div id="garage"></div>
 

@@ -27,3 +27,13 @@ export async function updateXY(car_id, x, y){
         body: JSON.stringify({ car_id: car_id, x, y })
     });
 }
+
+export async function deleteCar(car_id) {
+    const res = await fetch(`${API}/delete-car`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ car_id })
+    });
+
+    return res.json();
+}
