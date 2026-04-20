@@ -11,6 +11,7 @@ import psycopg2
 from flask_cors import CORS
 import time
 from helpers import remove_background, get_car_mm
+from engine_generator import write_engine
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 app = Flask(__name__, static_url_path='/static')
