@@ -184,7 +184,7 @@ def process_single_car(file, session_id):
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration, eur_value FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration, eur_value, cylinders, displacement FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -202,7 +202,9 @@ def get_cars():
             "x": r[8],
             "y": r[9],
             "acceleration": r[10],
-            "eur_value": r[11]
+            "eur_value": r[11],
+            "cylinders": r[12],
+            "displacement": r[13]
         }
         for r in rows
     ]

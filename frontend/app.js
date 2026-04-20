@@ -1,5 +1,6 @@
 import { uploadCars, fetchCars, removeBackground, updateXY } from "./api.js";
 import { loadCars } from "./render.js"
+import { initSidePanel } from "./charters.js"
 
 let session_id = localStorage.getItem("session_id");
 let selectedCar = null;
@@ -160,5 +161,22 @@ document.getElementById("closeRace").onclick = () => {
     document.getElementById("raceResult").innerHTML = "";
 };
 document.getElementById("raceBtn").addEventListener("click", race);
+
+initSidePanel();
 loadCars(session_id);
 setupGarageDrop();
+
+const panel = document.getElementById("sidePanel");
+const button = document.getElementById("sidePanelButton");
+
+let isOpen = false;
+
+button.addEventListener("click", () => {
+  isOpen = !isOpen;
+
+  panel.classList.toggle("open");
+  button.classList.toggle("open");
+
+  // Change arrow direction
+  button.textContent = isOpen ? "▶" : "◀";
+});

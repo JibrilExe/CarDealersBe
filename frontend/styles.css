@@ -33,6 +33,49 @@ body {
     pointer-events: auto;
 }
 
+.side-panel {
+    position: fixed;
+    top: 0;
+    right: -270px; /* hidden by default */
+    width: 250px;
+    height: 100%;
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    transition: right 0.3s ease;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+#sidePanel {
+    overflow-y: auto; /* Required for long lists of charts */
+}
+
+.chart-wrapper {
+    margin-bottom: 30px;
+    background: #34495e;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* Open state */
+.side-panel.open {
+    right: 0;
+}
+
+.sidePanelButton {
+    position: fixed;
+    top: 50%;
+    right: 10px;
+    z-index: 1001;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.sidePanelButton.open {
+    right: 260px;
+}
+
 .right-buttons {
     justify-content: flex-end;
 }
