@@ -45,8 +45,16 @@
 
     <div id="raceModal" class="modal hidden">
         <div class="modal-content">
-            <button id="closeRace">✖</button>
-            <div id="raceResult"></div>
+            <div id="winnerOverlay" class="winner-overlay hidden">
+                <div class="winner-card">
+                    <h1 id="winnerTitle"></h1>
+
+                    <img id="winnerImage" />
+
+                    <div id="winnerStats" class="winner-stats"></div>
+                </div>
+            </div>
+
 
             <div id="raceTrack">
                 <div class="lane">

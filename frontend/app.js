@@ -6,6 +6,7 @@ let session_id = localStorage.getItem("session_id");
 let selectedCar = null;
 let loading = false;
 let loadingInterval;
+let abortedRace = false;
 
 document.getElementById("fileInput").addEventListener("change", handleFileSelect);
 document.getElementById("uploadBtn").addEventListener("click", uploadClick);
@@ -114,11 +115,9 @@ function setupGarageDrop() {
 function openRaceModal(cars) {
     const modal = document.getElementById("raceModal");
     const track = document.getElementById("raceTrack");
-    const resultDiv = document.getElementById("raceResult");
     
     // Clear previous
     track.innerHTML = "";
-    resultDiv.innerHTML = "";
     modal.classList.remove("hidden");
 
     const carElements = [];
@@ -141,7 +140,7 @@ function openRaceModal(cars) {
 }
 
 function startRace(cars, carElements) {
-    const resultDiv = document.getElementById("raceResult");
+    abortedRace = false;
     const positions = new Array(cars.length).fill(0);
     // Speed: Lower time (0-100) = Faster speed
     const speeds = cars.map(c => (1 / (c.acceleration || 10)) * 20);
@@ -158,15 +157,48 @@ function startRace(cars, carElements) {
 
         if (finished) {
             clearInterval(interval);
-            
-            // Find who won (the one with the highest position or shortest time)
-            // Sorting cars by their zero-to-100 time
             const sortedCars = [...cars].sort((a, b) => (a.acceleration || 10) - (b.acceleration || 10));
             const winner = sortedCars[0];
-
-            resultDiv.innerHTML = `🏆 Winner: ${winner.make} ${winner.model} (${winner.acceleration}s)`;
+            if (!abortedRace){
+                showWinner(winner);
+            }
         }
     }, 50);
+}
+
+function showWinner(car) {
+    const overlay = document.getElementById("winnerOverlay");
+    const title = document.getElementById("winnerTitle");
+    const img = document.getElementById("winnerImage");
+    const stats = document.getElementById("winnerStats");
+
+    title.innerText = `${car.make || "Unknown"} ${car.model || ""} (${car.year || "-"}) won 🏆`;
+
+    img.src = "http://localhost:5001" + (car.bg_removed_url || car.image_url);
+
+    let powerString = "-";
+    if (car.power) {
+        powerString = car.is_electric
+            ? car.power + " kW"
+            : Math.round(1.35962 * car.power) + " hp";
+    }
+
+    stats.innerHTML = `
+        <b>Acceleration (0-100):</b> ${car.acceleration || "-"} s<br>
+        <b>Power:</b> ${powerString}<br>
+        <b>Cylinders:</b> ${car.cylinders || "-"}<br>
+        <b>Displacement:</b> ${car.displacement || "-"} L<br>
+        <b>Estimated Value:</b> ${car.eur_value || "-"} €<br>
+        <b>Electric:</b> ${car.is_electric ? "Yes ⚡" : "No"}
+    `;
+
+    overlay.classList.remove("hidden");
+
+    // click outside to close
+    overlay.onclick = () => {
+        overlay.classList.add("hidden");
+        document.getElementById("raceModal").classList.add("hidden");
+    };
 }
 
 function race() {
@@ -181,10 +213,6 @@ function race() {
     openRaceModal(garageCars);
 }
 
-document.getElementById("closeRace").onclick = () => {
-    document.getElementById("raceModal").classList.add("hidden");
-    document.getElementById("raceResult").innerHTML = "";
-};
 document.getElementById("raceBtn").addEventListener("click", race);
 
 initSidePanel();
@@ -202,6 +230,5 @@ button.addEventListener("click", () => {
   panel.classList.toggle("open");
   button.classList.toggle("open");
 
-  // Change arrow direction
   button.textContent = isOpen ? "▶" : "◀";
 });
