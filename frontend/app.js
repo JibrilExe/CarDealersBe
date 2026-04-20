@@ -8,6 +8,7 @@ let loading = false;
 document.getElementById("fileInput").addEventListener("change", handleFileSelect);
 document.getElementById("uploadBtn").addEventListener("click", uploadClick);
 
+
 if (!session_id) {
     session_id = crypto.randomUUID();
     localStorage.setItem("session_id", session_id);
@@ -157,3 +158,18 @@ document.getElementById("closeRace").onclick = () => {
 document.getElementById("raceBtn").addEventListener("click", race);
 loadCars(session_id);
 setupGarageDrop();
+
+const panel = document.getElementById("sidePanel");
+const button = document.getElementById("sidePanelButton");
+
+let isOpen = false;
+
+button.addEventListener("click", () => {
+  isOpen = !isOpen;
+
+  panel.classList.toggle("open");
+  button.classList.toggle("open");
+
+  // Change arrow direction
+  button.textContent = isOpen ? "▶" : "◀";
+});
