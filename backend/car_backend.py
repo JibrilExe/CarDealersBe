@@ -34,7 +34,6 @@ def init_db():
             time.sleep(2)
 
     cursor.execute("""
-    DROP TABLE IF EXISTS cars;
     CREATE TABLE IF NOT EXISTS cars (
         id TEXT PRIMARY KEY,
         session_id TEXT,
@@ -46,7 +45,7 @@ def init_db():
         acceleration FLOAT,
         power FLOAT,
         color TEXT,
-        cc FLOAT,
+        displacement FLOAT,
         cylinders INTEGER,
         is_electric BOOLEAN,
         x FLOAT,
@@ -124,7 +123,7 @@ def upload():
             id, session_id,
             image_url, bg_removed_url,
             make, model, year,
-            acceleration, power, cc, cylinders, is_electric
+            acceleration, power, displacement, cylinders, is_electric
         )
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
