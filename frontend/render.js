@@ -27,12 +27,14 @@ function renderCollection(cars) {
         if(car.power){
             powerString = car.is_electric ? car.power + " kW" : Math.round(1.35962*car.power) + " hp"
         }
+        var eur_value = ( car.eur_value + "€" || "Unknown" ) 
         const info = document.createElement("div");
         info.className = "car-info";
         info.innerHTML = `
             <b>${car.make || "Unknown"} ${car.model || ""}</b><br>
             Year: ${car.year || "-"}<br>
-            Power: ${powerString}
+            Power: ${powerString}<br>
+            Est. value: ${eur_value}
         `;
 
         card.draggable = true;
