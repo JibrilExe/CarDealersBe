@@ -73,12 +73,23 @@ def place_car():
 
     return jsonify({"ok": True})
 
+from concurrent.futures import ThreadPoolExecutor
 
+# The Batch Route
 @app.route("/upload", methods=["POST"])
-def upload():
-    file = request.files["image"]
+def upload_batch():
+    files = request.files.getlist("images") # Get multiple files
     session_id = request.form.get("session_id")
 
+    # Use ThreadPoolExecutor to run process_single_car in parallel
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        # Create a list of arguments for the executor
+        results = list(executor.map(lambda f: process_single_car(f, session_id), files))
+
+    return jsonify(results)
+
+
+def process_single_car(file, session_id):
     car_id = str(uuid.uuid4())
 
     print("TEST PRINT", flush=True)
@@ -148,7 +159,7 @@ def upload():
 
     conn.commit()
 
-    return jsonify({
+    return {
         "id": car_id,
         "session_id": session_id,
         "image_url": image_url,
@@ -161,14 +172,14 @@ def upload():
         "power": power,
         "acceleration": acceleration,
         "isElectric": isElectric
-    })
+    }
 
 
 @app.route("/cars", methods=["GET"])
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -185,7 +196,6 @@ def get_cars():
             "is_electric": r[7],
             "x": r[8],
             "y": r[9],
-            "acceleration": r[10]
         }
         for r in rows
     ]

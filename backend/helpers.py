@@ -26,8 +26,8 @@ def get_car_mm(image_path: str):
 
     client = genai.Client(api_key=GEMINI_API_PAID_TOKEN)
     img = Image.open(image_path)
+    img.thumbnail((1024, 1024)) # we want to reduce bytes sent
     
-    # 1. Define the behavior in system_instruction
     system_prompt = (
         "You are an expert automotive identification assistant. "
         "Your task is to identify vehicle make, model, and year from images. "
@@ -36,7 +36,6 @@ def get_car_mm(image_path: str):
         "Prioritize the most common engine and performance specifications for the identified model."
     )
 
-    # 2. Refine your request to be task-oriented
     user_prompt = (
         "Identify the make, model, and build year of this vehicle. "
         "Based on this, provide the engine displacement, number of cylinders, "
@@ -44,15 +43,15 @@ def get_car_mm(image_path: str):
     )
 
     response = client.models.generate_content(
-        model="gemini-3.1-pro-preview",
+        model="gemini-2.5-flash",
         contents=[img, user_prompt],
         config={
             "response_mime_type": "application/json",
             "response_schema": CarInfo,
             "system_instruction": system_prompt,
-            "temperature": 0.2, # Lower temperature helps keep output focused? Not tested yet
+            "temperature": 0.1,
         },
-    ) 
+    )
 
     # --- DEBUGGING BLOCK --- # TODO: remove debug prints for final submission?
     print("\n--- RAW GEMINI RESPONSE ---")

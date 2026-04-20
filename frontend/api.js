@@ -1,6 +1,6 @@
 const API = "http://localhost:5001";
 
-export async function uploadCar(formData) {
+export async function uploadCars(formData) {
     return fetch(`${API}/upload`, {
         method: "POST",
         body: formData
