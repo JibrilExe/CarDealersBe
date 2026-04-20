@@ -10,7 +10,7 @@ import os
 import psycopg2
 from flask_cors import CORS
 import time
-from helpers import remove_background, get_car_mm
+from helpers import remove_background, get_car_mm, delete_file
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 app = Flask(__name__, static_url_path='/static')
@@ -209,6 +209,31 @@ def get_cars():
         for r in rows
     ]
     return jsonify(cars)
+
+@app.route("/delete-car", methods=["POST"])
+def delete_car():
+    data = request.json
+    car_id = data.get("car_id")
+
+    if not car_id:
+        return jsonify({"error": "car_id required"}), 400
+
+    cursor.execute("""
+        SELECT image_url, bg_removed_url FROM cars WHERE id = %s
+    """, (car_id,))
+    row = cursor.fetchone()
+
+    if not row:
+        return jsonify({"error": "car not found"}), 404
+
+    image_url, bg_removed_url = row
+    delete_file(image_url)
+    delete_file(bg_removed_url)
+
+    cursor.execute("DELETE FROM cars WHERE id = %s", (car_id,))
+    conn.commit()
+
+    return jsonify({"ok": True})
 
 
 if __name__ == "__main__":
