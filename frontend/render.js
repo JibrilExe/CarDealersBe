@@ -9,6 +9,7 @@ export async function loadCars(session_id) {
 
     renderCollection(cars);
     renderGarage(cars, session_id);
+    updateGarageValue(cars);
 }
 
 function renderCollection(cars) {
@@ -69,4 +70,12 @@ function renderGarage(cars, session_id) {
 
         garage.appendChild(img);
     });
+}
+
+function updateGarageValue(cars) {
+    const display = document.getElementById("totalValueDisplay");    
+    const garageCars = cars.filter(c => c.x != null && c.y != null);
+    const total = garageCars.reduce((sum, car) => sum + (parseFloat(car.eur_value) || 0), 0);
+    const formatted = "€" + total.toLocaleString();
+    display.textContent = formatted;
 }
