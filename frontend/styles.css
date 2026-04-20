@@ -249,6 +249,8 @@ body {
 .lane {
     position: relative;
     height: 80px;
+    min-height: 80px;
+    flex-shrink: 0;
     background: #222;
     border-radius: 10px;
     width: 100%;
@@ -276,7 +278,7 @@ body {
 }
 
 #raceTrack {
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
