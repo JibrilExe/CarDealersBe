@@ -1,4 +1,4 @@
-const API = "http://localhost:5000";
+const API = "http://localhost:5001";
 
 export async function uploadCar(formData) {
     return fetch(`${API}/upload`, {
@@ -17,5 +17,13 @@ export async function removeBackground(car_id) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ car_id })
+    });
+}
+
+export async function updateXY(car_id, x, y){
+    return fetch(`${API}/place-car`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ car_id: car_id, x, y })
     });
 }

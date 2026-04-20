@@ -1,14 +1,36 @@
-<div id="topBar">
-    <button onclick="race()">🏁 Race</button>
-    <button id="uploadBtn">➕ Add</button>
-</div>
-<div id="loading" style="display:none;">Processing...</div>
+<!DOCTYPE html>
+<html lang="en">
 
-<div id="garage"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Dealers</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
 
-<div id="collection"></div>
+<body>
 
-<input type="file" id="fileInput" style="display:none;" />
+    <div id="topBar">
+        <div class="left-buttons">
+            <button class="action-btn race-btn" onclick="race()">🏁 Race</button>
+        </div>
+        <div class="right-buttons">
+            <select id="bgSelect" class="action-btn bg-btn">
+                <button value="">🖼️ Kies Achtergrond</button>
+            </select>
+            <button class="action-btn add-btn" id="uploadBtn">➕ Auto Toevoegen</button>
+        </div>
+    </div>
+    <div id="loading" style="display:none;">Processing...</div>
 
-<script type="module" src="app.js"></script>
-<link rel="stylesheet" href="styles.css">
+    <div id="garage"></div>
+
+    <div id="collection"></div>
+
+    <input type="file" id="fileInput" style="display:none;" accept="image/*" />
+    <input type="file" id="bgInput" style="display:none;" accept="image/*" />
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
