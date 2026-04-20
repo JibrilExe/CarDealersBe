@@ -1,4 +1,5 @@
 import { uploadCar, fetchCars, removeBackground, updateXY } from "./api.js";
+import { loadCars } from "./render.js"
 
 let session_id = localStorage.getItem("session_id");
 let selectedCar = null;
@@ -30,15 +31,8 @@ async function upload() {
     const uploadRes = uploadCar(formData);
     await uploadRes.json();
 
-    await loadCars();
+    await loadCars(session_id);
     setLoading(false);
-}
-
-async function loadCars() {
-    const cars = await fetchCars(session_id);
-
-    renderCollection(cars);
-    renderGarage(cars);
 }
 
 function uploadClick() {
@@ -57,7 +51,7 @@ async function handleFileSelect(event) {
         formData.append("session_id", session_id);
         const uploadRes = await uploadCar(formData);
         const car = await uploadRes.json();
-        await loadCars();
+        await loadCars(session_id);
 
     } catch (err) {
         console.error("Upload failed", err);
@@ -67,48 +61,6 @@ async function handleFileSelect(event) {
 
     // reset input so same file can be re-selected later
     event.target.value = "";
-}
-
-function renderCollection(cars) {
-    const el = document.getElementById("collection");
-    el.innerHTML = "";
-
-    cars.forEach(car => {
-        const card = document.createElement("div");
-        card.className = "car-card";
-
-        if (selectedCar === car.id) {
-            card.classList.add("selected");
-        }
-
-        const img = document.createElement("img");
-        img.src = "http://localhost:5001" + (car.bg_removed_url || car.image_url);
-        img.className = "car";
-
-        const info = document.createElement("div");
-        info.className = "car-info";
-        info.innerHTML = `
-            <b>${car.make || "Unknown"} ${car.model || ""}</b><br>
-            Year: ${car.year || "-"}<br>
-            Power: ${car.power ? car.power + " hp" : "-"}
-        `;
-
-        card.onclick = () => {
-            selectedCar = car.id;
-            loadCars();
-        };
-
-        card.draggable = true;
-
-        card.ondragstart = (e) => {
-            e.dataTransfer.setData("text/plain", car.id);
-            e.dataTransfer.effectAllowed = "move";
-        };
-
-        card.appendChild(img);
-        card.appendChild(info);
-        el.appendChild(card);
-    });
 }
 
 function setupGarageDrop() {
@@ -131,33 +83,9 @@ function setupGarageDrop() {
         const y = e.clientY - rect.top;
         await updateXY(carId, x, y);
 
-        loadCars();
+        loadCars(session_id);
     };
 }
 
-function renderGarage(cars) {
-    const garage = document.getElementById("garage");
-    garage.innerHTML = "";
-
-    cars.forEach(car => {
-        console.log("Car coords: ", car.x, car.y);
-        if (car.x == null || car.y == null) return;
-
-        const img = document.createElement("img");
-        img.src = "http://localhost:5001" + (car.bg_removed_url || car.image_url);
-        img.className = "car";
-
-        img.style.left = car.x + "px";
-        img.style.top = car.y + "px";
-
-        img.onclick = async () => {
-            await updateXY(car.id, null, null);
-            loadCars();
-        };
-
-        garage.appendChild(img);
-    });
-}
-
-loadCars();
+loadCars(session_id);
 setupGarageDrop();
