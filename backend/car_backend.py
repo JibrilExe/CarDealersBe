@@ -162,8 +162,6 @@ def process_single_car(file, session_id):
         eur_value
     ))
 
-    write_engine(cylinders, car_id)
-
     conn.commit()
 
     return {
@@ -211,6 +209,11 @@ def get_cars():
         }
         for r in rows
     ]
+    if(len(cars) > 0):
+        print("Generating engine sound", flush=True)
+        write_engine(cars[0]["cylinders"], cars[0]["id"])
+        print("Generated engine sound:", flush=True)
+    
     return jsonify(cars)
 
 

@@ -1,4 +1,6 @@
 import os
+import subprocess
+import requests
 
 ENGINE_FOLDER = "static/engine"
 os.makedirs(ENGINE_FOLDER, exist_ok=True)
@@ -353,4 +355,20 @@ def write_engine(cylinders, name):
         for i in range(cylinders):
             f.write(f"            .connect_wire(wires.wire{i+1}, ({i}.0 / {cylinders}.0) * cycle)\n")
         f.write(code5)
+
+        filepath = os.path.join(ENGINE_FOLDER, name+"-main.mr")
+        with open(filepath, "w") as f:
+            f.write(f'''import "engine_sim.mr"
+import "../../backend/engine-sim-sound-exporter/assets/themes/default.mr"
+import "{name}.mr"
+
+use_default_theme()
+main()
+''')
+    
+    response = requests.get(
+        "http://host.docker.internal:5002/execute_gen_sound",
+        params={"name": name}
+    )
+
     

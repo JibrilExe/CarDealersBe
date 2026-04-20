@@ -5,9 +5,6 @@ WORKDIR /app
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        wine64 \
-        wine32 \
-        winbind \
         cabextract \
         && rm -rf /var/lib/apt/lists/*
 

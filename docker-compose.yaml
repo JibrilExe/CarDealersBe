@@ -14,6 +14,8 @@ services:
 
   backend:
     build: ./backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     container_name: flask_backend
     restart: always
     ports:
