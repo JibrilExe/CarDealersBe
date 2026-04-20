@@ -12,7 +12,7 @@
 
     <div id="topBar">
         <div class="left-buttons">
-            <button class="action-btn race-btn" onclick="race()">🏁 Race</button>
+            <button class="action-btn race-btn" id="raceBtn">🏁 Race</button>
         </div>
         <div class="right-buttons">
             <select id="bgSelect" class="action-btn bg-btn">
@@ -26,6 +26,25 @@
     <div id="garage"></div>
 
     <div id="collection"></div>
+
+    <div id="raceModal" class="modal hidden">
+        <div class="modal-content">
+            <button id="closeRace">✖</button>
+
+            <div id="raceTrack">
+                <div class="lane">
+                    <img id="car1" />
+                    <div class="flag" id="flag1">🏁</div>
+                </div>
+                <div class="lane">
+                    <img id="car2" />
+                    <div class="flag" id="flag2">🏁</div>
+                </div>
+            </div>
+
+            <div id="raceResult"></div>
+        </div>
+    </div>
 
     <input type="file" id="fileInput" style="display:none;" accept="image/*" />
     <input type="file" id="bgInput" style="display:none;" accept="image/*" />

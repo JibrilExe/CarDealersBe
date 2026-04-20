@@ -5,6 +5,8 @@ const BASE = "http://localhost:5001";
 export async function loadCars(session_id) {
     const cars = await fetchCars(session_id);
 
+    window.currentCars = cars; // store so race can reach them.
+
     renderCollection(cars);
     renderGarage(cars, session_id);
 }
