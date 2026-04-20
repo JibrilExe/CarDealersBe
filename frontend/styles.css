@@ -8,23 +8,47 @@ body {
     color: #eee;
 }
 
+@font-face {
+    font-family: 'Pricedown';
+    src: url('assets/pricedown.otf') format('opentype');; 
+}
+
 #topBar {
     position: absolute;
     top: 15px;
     width: 100%;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 0 30px;
     z-index: 10;
     box-sizing: border-box;
     pointer-events: none;
 }
 
-#topBar .left-buttons,
-#topBar .right-buttons {
+.left-buttons, .right-buttons {
+    flex: 1;
     display: flex;
     gap: 15px;
     pointer-events: auto;
+}
+
+.right-buttons {
+    justify-content: flex-end;
+}
+
+/* MONEY DISPLAY */
+#totalValueDisplay {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Pricedown', sans-serif;
+    font-size: 36px;
+    color: #55aa55;
+    text-shadow: 2px 2px 0px #000;
+    letter-spacing: 2px;
+    user-select: none;
 }
 
 .action-btn {
