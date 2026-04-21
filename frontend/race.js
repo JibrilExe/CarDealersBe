@@ -93,6 +93,5 @@ export function race() {
         alert("Need at least 2 cars to race!");
         return;
     }
-    console.log(garageCars);
     openRaceModal(garageCars);
 }

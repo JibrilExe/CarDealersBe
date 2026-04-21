@@ -68,7 +68,6 @@ function renderCollection(cars, session_id) {
         };
 
         card.addEventListener("contextmenu", async (e) => {
-            console.log("Trying to remove");
             e.preventDefault(); // we overtake right click for delete, left click would be too counter intuitive for new users?
 
             try {
