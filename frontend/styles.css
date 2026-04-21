@@ -39,7 +39,7 @@ body {
 .side-panel {
     position: fixed;
     top: 0;
-    right: -328px; /* slightly wider hidden offset */
+    right: -350px; /* slightly wider hidden offset */
     width: 320px;
     height: 100%;
 
@@ -98,7 +98,7 @@ body {
 .sidePanelButton {
     position: fixed;
     top: 50%;
-    right: -4px;
+    right: -12px;
     transform: translateY(-50%);
 
     z-index: 1001;
@@ -120,6 +120,23 @@ body {
 
     box-shadow: 0 6px 20px rgba(0,0,0,0.5);
     transition: all 0.25s ease;
+}
+
+.sidePanelButton:hover {
+    transform: translateY(-50%) scale(1.08);
+    
+    box-shadow: 
+        0 10px 25px rgba(0,0,0,0.7),
+        0 0 12px rgba(52, 152, 219, 0.4);
+
+    border-color: rgba(52, 152, 219, 0.4);
+}
+
+.sidePanelButton:active {
+    transform: translateY(-50%) scale(0.95);
+    
+    box-shadow: 
+        0 4px 10px rgba(0,0,0,0.6);
 }
 
 .sidePanelButton.open {
@@ -185,6 +202,11 @@ body {
     box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5);
 }
 
+#bgRemoveBtn.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    filter: grayscale(0.6);
+}
 
 #garage {
     position: absolute;
@@ -203,6 +225,15 @@ body {
     box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
     overflow: hidden;
     transition: all 0.3s ease;
+}
+
+#garage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: rgba(0,0,0,0.35); /* dark overlay */
+    pointer-events: none;
 }
 
 #garage.drag-over {
