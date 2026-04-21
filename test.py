@@ -21,7 +21,7 @@ def gen_sound():
         "--out", f"../../../static/engine/{name}"
     ]
 
-    subprocess.run(cmd, check=True, cwd="backend/engine-sim-sound-exporter/bin")
+    subprocess.run(cmd, cwd="backend/engine-sim-sound-exporter/bin")
 
     return {"generation": "succes"}
 if __name__ == "__main__":
