@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Dealers</title>
+    <title>Premium Deluxe Motorsport</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -15,10 +15,12 @@
         </div>
         <div id="totalValueDisplay">€0</div>
         <div class="right-buttons">
-            <select id="bgSelect" class="action-btn bg-btn">
-                <button value="">🖼️ Choose Garage</button>
-            </select>
-            <button class="action-btn add-btn" id="uploadBtn">➕ Add Vehicle</button>
+            <input type="file" id="bgInput" style="display:none;" accept="image/*" />
+            <button class="action-btn bg-btn" id="bgRemoveBtn">🗑️</button>
+            <button class="action-btn bg-btn" id="bgUploadBtn">
+                🖼️ Choose Background
+            </button>
+            <button class="action-btn add-btn" id="uploadBtn">➕ Add Car</button>
         </div>
     </div>
     <div id="loading" class="loading-overlay hidden">

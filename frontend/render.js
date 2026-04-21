@@ -42,6 +42,15 @@ function renderCollection(cars, session_id) {
         card.draggable = true;
         card.ondragstart = (e) => {
             e.dataTransfer.setData("text/plain", car.id);
+
+            // store offset so drop feels natural
+            const rect = e.target.getBoundingClientRect();
+
+            const offsetX = e.offsetX;
+            const offsetY = e.offsetY;
+
+            e.dataTransfer.setData("offsetX", offsetX);
+            e.dataTransfer.setData("offsetY", offsetY);
         };
 
         card.addEventListener("contextmenu", async (e) => {
@@ -80,6 +89,21 @@ function renderGarage(cars, session_id) {
         const img = document.createElement("img");
         img.src = BASE + (car.bg_removed_url || car.image_url);
         img.className = "car";
+        img.draggable = true;
+        img.ondragstart = (e) => {
+            e.dataTransfer.setData("text/plain", car.id);
+
+            // mark origin
+            e.dataTransfer.setData("from", "garage");
+
+            const rect = e.target.getBoundingClientRect();
+
+            const offsetX = e.offsetX;
+            const offsetY = e.offsetY;
+
+            e.dataTransfer.setData("offsetX", offsetX);
+            e.dataTransfer.setData("offsetY", offsetY);
+        };
 
         img.style.left = car.x + "px";
         img.style.top = car.y + "px";
