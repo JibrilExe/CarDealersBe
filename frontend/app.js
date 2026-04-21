@@ -50,13 +50,22 @@ garage.ondrop = async (e) => {
     garage.classList.remove("drag-over");
 
     const carId = e.dataTransfer.getData("text/plain");
+    const from = e.dataTransfer.getData("from");
+
     const rect = garage.getBoundingClientRect();
 
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    await updateXY(carId, x, y);
+    const offsetX = parseFloat(e.dataTransfer.getData("offsetX")) || 0;
+    const offsetY = parseFloat(e.dataTransfer.getData("offsetY")) || 0;
 
-    loadCars(getSessionId());
+    const x = e.clientX - rect.left - offsetX;
+    const y = e.clientY - rect.top - offsetY;
+
+    try {
+        await updateXY(carId, x, y);
+        loadCars(getSessionId());
+    } catch (err) {
+        console.log("Move failed:", err);
+    }
 };
 
 initSidePanel();
