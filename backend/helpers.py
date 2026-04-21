@@ -2,11 +2,9 @@ import replicate
 import requests
 import os
 from PIL import Image
-import types
 from pydantic import BaseModel
 from google import genai
 
-GEMINI_KEY = os.getenv("GEMINI_API_TOKEN")
 GEMINI_API_PAID_TOKEN = os.getenv("GEMINI_API_PAID_TOKEN")
 
 #VMMR (vehicle make model recognition) return variables
@@ -39,7 +37,7 @@ def get_car_mm(image_path: str):
 
     user_prompt = (
         "Identify the make, model, and build year of this vehicle. "
-        "Based on this, provide the engine displacement, number of cylinders, a estimate of the current car value in euros, "
+        "Based on this, provide the engine displacement, number of cylinders, an estimate of the current car value in euros, "
         "power in kW, and 0-100km/h time (in seconds formatted as a decimal number, e.g., 9.81). If electric, fill in relevant fields."
     )
 
@@ -66,8 +64,6 @@ def remove_background(image_path: str, output_path: str):
     Takes a local file path, runs AI background removal,
     saves result to output_path, returns output_path.
     """
-
-    # Upload local file as file-like object
     with open(image_path, "rb") as file:
         output = replicate.run(
             "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003",
@@ -75,9 +71,6 @@ def remove_background(image_path: str, output_path: str):
                 "image": file
             }
         )
-
-    # replicate returns a URL or file-like object depending on model
-    # safest way: handle both cases
 
     if hasattr(output, "read"):
         # file-like
@@ -90,3 +83,13 @@ def remove_background(image_path: str, output_path: str):
             f.write(r.content)
 
     return output_path
+
+def delete_file(url):
+    if not url:
+        return
+    try:
+        path = url.replace("/static/", "static/")
+        if os.path.exists(path):
+            os.remove(path)
+    except Exception as e:
+        print("File delete error:", e)

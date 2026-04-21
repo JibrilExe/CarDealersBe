@@ -1,4 +1,4 @@
-import { updateXY, fetchCars } from "./api.js";
+import { updateXY, fetchCars, deleteCar } from "./api.js";
 import { renderChart, removeChart, METRICS, activeCharts, refreshCharts } from "./charters.js";
 
 const BASE = "http://localhost:5001";
@@ -8,12 +8,12 @@ export async function loadCars(session_id) {
 
     window.currentCars = cars; // store so race can reach them.
 
-    renderCollection(cars);
+    renderCollection(cars, session_id);
     renderGarage(cars, session_id);
     updateGarageValue(cars);
 }
 
-function renderCollection(cars) {
+function renderCollection(cars, session_id) {
     const el = document.getElementById("collection");
     el.innerHTML = "";
 
@@ -25,11 +25,11 @@ function renderCollection(cars) {
         img.src = BASE + (car.bg_removed_url || car.image_url);
         img.className = "car";
         
-        var powerString = "-";
+        let powerString = "-";
         if(car.power){
             powerString = car.is_electric ? car.power + " kW" : Math.round(1.35962*car.power) + " hp"
         }
-        var eur_value = ( car.eur_value + "€" || "Unknown" ) 
+        let eur_value = ( car.eur_value + "€" || "Unknown" ) 
         const info = document.createElement("div");
         info.className = "car-info";
         info.innerHTML = `
@@ -42,7 +42,36 @@ function renderCollection(cars) {
         card.draggable = true;
         card.ondragstart = (e) => {
             e.dataTransfer.setData("text/plain", car.id);
+
+            // store offset so drop feels natural
+            const rect = e.target.getBoundingClientRect();
+
+            const offsetX = e.offsetX;
+            const offsetY = e.offsetY;
+
+            e.dataTransfer.setData("offsetX", offsetX);
+            e.dataTransfer.setData("offsetY", offsetY);
         };
+
+        card.addEventListener("contextmenu", async (e) => {
+            console.log("Trying to remove");
+            e.preventDefault(); // we overtake right click for delete, left click would be too counter intuitive for new users?
+
+            try {
+                const res = await deleteCar(car.id);
+
+                if (!res.ok) {
+                    console.log("Delete failed:", res);
+                    return;
+                }
+
+                card.remove();
+                await loadCars(session_id);
+
+            } catch (err) {
+                console.log("Delete error:", err);
+            }
+        });
 
         card.appendChild(img);
         card.appendChild(info);
@@ -60,6 +89,21 @@ function renderGarage(cars, session_id) {
         const img = document.createElement("img");
         img.src = BASE + (car.bg_removed_url || car.image_url);
         img.className = "car";
+        img.draggable = true;
+        img.ondragstart = (e) => {
+            e.dataTransfer.setData("text/plain", car.id);
+
+            // mark origin
+            e.dataTransfer.setData("from", "garage");
+
+            const rect = e.target.getBoundingClientRect();
+
+            const offsetX = e.offsetX;
+            const offsetY = e.offsetY;
+
+            e.dataTransfer.setData("offsetX", offsetX);
+            e.dataTransfer.setData("offsetY", offsetY);
+        };
 
         img.style.left = car.x + "px";
         img.style.top = car.y + "px";

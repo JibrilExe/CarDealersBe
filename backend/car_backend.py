@@ -10,8 +10,7 @@ import os
 import psycopg2
 from flask_cors import CORS
 import time
-from helpers import remove_background, get_car_mm
-from engine_generator import write_engine
+from helpers import remove_background, get_car_mm, delete_file
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 app = Flask(__name__, static_url_path='/static')
@@ -216,6 +215,47 @@ def get_cars():
     
     return jsonify(cars)
 
+@app.route("/delete-car", methods=["POST"])
+def delete_car():
+    data = request.json
+    car_id = data.get("car_id")
+
+    if not car_id:
+        return jsonify({"error": "car_id required"}), 400
+
+    cursor.execute("""
+        SELECT image_url, bg_removed_url FROM cars WHERE id = %s
+    """, (car_id,))
+    row = cursor.fetchone()
+
+    if not row:
+        return jsonify({"error": "car not found"}), 404
+
+    image_url, bg_removed_url = row
+    delete_file(image_url)
+    delete_file(bg_removed_url)
+
+    cursor.execute("DELETE FROM cars WHERE id = %s", (car_id,))
+    conn.commit()
+
+    return jsonify({"ok": True})
+
+@app.route("/upload-bg", methods=["POST"])
+def upload_bg():
+    file = request.files.get("image")
+
+    if not file:
+        return jsonify({"error": "No file"}), 400
+
+    bg_id = str(uuid.uuid4())
+    filename = f"{bg_id}_bg.png"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+
+    file.save(filepath)
+
+    return jsonify({
+        "url": f"/static/uploads/{filename}"
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)

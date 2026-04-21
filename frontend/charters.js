@@ -47,9 +47,18 @@ export function renderChart(metric, garageCars) {
         return;
     }
 
-   let wrapper = document.createElement("div");
+    let wrapper = document.createElement("div");
     wrapper.className = "chart-wrapper";
     wrapper.id = `chart-wrapper-${metric.key}`;
+
+    const items = garageCars.length;
+    const barHeight = 35;
+    const minHeight = 150;
+
+    const height = Math.max(minHeight, items * barHeight);
+
+    wrapper.style.height = height + "px"; // ✅ KEY LINE
+
     wrapper.innerHTML = `<canvas id="chart-${metric.key}"></canvas>`;
     container.appendChild(wrapper);
 
@@ -67,8 +76,16 @@ export function renderChart(metric, garageCars) {
         options: {
             indexAxis: 'y',
             responsive: true,
-            plugins: { legend: { labels: { color: 'white' } } },
-            scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } }
+            maintainAspectRatio: false, // ✅ REQUIRED
+
+            plugins: { 
+                legend: { labels: { color: 'white' } } 
+            },
+
+            scales: { 
+                x: { ticks: { color: 'white' } }, 
+                y: { ticks: { color: 'white' }, ticks: { autoSkip: false, color: 'white' } } 
+            }
         }
     });
 }
