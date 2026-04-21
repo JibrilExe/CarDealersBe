@@ -138,18 +138,22 @@ def process_single_car(file, session_id):
         print("Gemini failed:", e, flush=True)
 
     sound_url = f"/static/engine/defaults/{cylinders}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
-    if cylinders > 0 and not isElectric:
-        print("Generating engine sound", flush=True)
-        sound_url = write_engine(cylinders, car_id)
-        print("Generated engine sound:", flush=True)
-    
+    if cylinders:
+        if cylinders > 0 and not isElectric:
+            print("Generating engine sound", flush=True)
+            try:
+                sound_url = write_engine(cylinders, car_id)
+                print("Generated engine sound:", flush=True)
+            except Exception as e:
+                print("Sound generation failed:", e, flush=True)
 
-    if not os.path.exists(str(sound_url)):
-        print("Sound not found! using default sound for cylinder", flush=True)
-        if(cylinders <= 1 or cylinders > 18 or isElectric):
-            sound_url = f"/static/engine/defaults/1/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
-        else:
-            f"/static/engine/defaults/{cylinders}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+        file_path_sound = sound_url.lstrip("/")
+        if not os.path.exists(str(file_path_sound)):
+            print("Sound not found! using default sound for cylinder", flush=True)
+            if(cylinders <= 1 or cylinders > 18 or isElectric):
+                sound_url = f"/static/engine/defaults/1/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+            else:
+                sound_url = f"/static/engine/defaults/{cylinders}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
 
     # 4. Store everything
     cursor.execute("""
