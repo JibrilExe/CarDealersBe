@@ -11,6 +11,7 @@ import psycopg2
 from flask_cors import CORS
 import time
 from helpers import remove_background, get_car_mm, delete_file
+from engine_generator import write_engine
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 app = Flask(__name__, static_url_path='/static')
@@ -50,7 +51,8 @@ def init_db():
         is_electric BOOLEAN,
         x FLOAT,
         y FLOAT,
-        eur_value FLOAT
+        eur_value FLOAT,
+        sound_url TEXT
     )
     """)
     conn.commit()
@@ -135,6 +137,24 @@ def process_single_car(file, session_id):
     except Exception as e:
         print("Gemini failed:", e, flush=True)
 
+    sound_url = f"/static/engine/defaults/{cylinders}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+    if cylinders:
+        if cylinders > 0 and not isElectric:
+            print("Generating engine sound", flush=True)
+            try:
+                sound_url = write_engine(cylinders, car_id)
+                print("Generated engine sound:", sound_url, flush=True)
+            except Exception as e:
+                print("Sound generation failed:", e, flush=True)
+
+        file_path_sound = sound_url.lstrip("/")
+        if not os.path.exists(str(file_path_sound)):
+            print("Sound not found! using default sound for cylinder", flush=True)
+            if(cylinders <= 1 or cylinders > 18 or isElectric):
+                sound_url = f"/static/engine/defaults/1/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+            else:
+                sound_url = f"/static/engine/defaults/{cylinders}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+
     # 4. Store everything
     cursor.execute("""
         INSERT INTO cars (
@@ -142,9 +162,9 @@ def process_single_car(file, session_id):
             image_url, bg_removed_url,
             make, model, year,
             acceleration, power, displacement,
-            cylinders, is_electric, eur_value
+            cylinders, is_electric, eur_value, sound_url
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         car_id,
         session_id,
@@ -158,7 +178,8 @@ def process_single_car(file, session_id):
         displacement,
         cylinders,
         isElectric,
-        eur_value
+        eur_value,
+        sound_url
     ))
 
     conn.commit()
@@ -176,7 +197,8 @@ def process_single_car(file, session_id):
         "power": power,
         "acceleration": acceleration,
         "isElectric": isElectric,
-        "eur_value": eur_value
+        "eur_value": eur_value,
+        "sound_url": sound_url
     }
 
 
@@ -184,7 +206,7 @@ def process_single_car(file, session_id):
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration, eur_value, cylinders, displacement FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration, eur_value, cylinders, displacement, sound_url FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -204,10 +226,12 @@ def get_cars():
             "acceleration": r[10],
             "eur_value": r[11],
             "cylinders": r[12],
-            "displacement": r[13]
+            "displacement": r[13],
+            "sound_url": r[14]
         }
         for r in rows
     ]
+    
     return jsonify(cars)
 
 @app.route("/delete-car", methods=["POST"])

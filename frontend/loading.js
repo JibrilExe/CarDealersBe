@@ -11,6 +11,7 @@ export function setLoading(state) {
             "Analyzing vehicle...",
             "Getting latest data...",
             "Estimating value...",
+            "Generating engine sound...",
             "Almost done..."
         ];
 

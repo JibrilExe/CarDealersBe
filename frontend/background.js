@@ -1,4 +1,5 @@
 import { uploadBackground } from "./api.js";
+import { BASE } from "./base_url.js"
 
 document.getElementById("bgInput").addEventListener("change", async (e) => {
     const file = e.target.files[0];
@@ -28,7 +29,7 @@ export function applyGarageBackground(url) {
         return;
     }
 
-    garage.style.backgroundImage = `url("http://localhost:5001${url}")`;
+    garage.style.backgroundImage = `url("${BASE}${url}")`;
 }
 
 export function updateBgButtons() {

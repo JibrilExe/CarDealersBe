@@ -6,6 +6,9 @@ import { setLoading } from "./loading.js";
 import { handleFileSelect, uploadClick } from "./upload.js";
 import { getSessionId } from "./sessionId.js";
 import { applyGarageBackground, updateBgButtons } from "./background.js";
+import { BASE } from "./base_url.js";
+
+document.getElementById("favicon").href = `${BASE}/static/favicon.ico`;
 
 const savedBg = localStorage.getItem("garage_bg");
 if (savedBg) {
