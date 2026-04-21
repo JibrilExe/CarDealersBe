@@ -5,7 +5,6 @@ from PIL import Image
 from pydantic import BaseModel
 from google import genai
 
-GEMINI_KEY = os.getenv("GEMINI_API_TOKEN")
 GEMINI_API_PAID_TOKEN = os.getenv("GEMINI_API_PAID_TOKEN")
 
 #VMMR (vehicle make model recognition) return variables
