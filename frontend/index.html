@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Dealers</title>
+    <title>Premium Deluxe Motorsport</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="http://localhost:5001/static/favicon.ico">
 </head>
 
 <body>
@@ -15,13 +16,31 @@
         </div>
         <div id="totalValueDisplay">€0</div>
         <div class="right-buttons">
-            <select id="bgSelect" class="action-btn bg-btn">
-                <button value="">🖼️ Kies Achtergrond</button>
-            </select>
-            <button class="action-btn add-btn" id="uploadBtn">➕ Auto Toevoegen</button>
+            <input type="file" id="bgInput" style="display:none;" accept="image/*" />
+            <button class="action-btn bg-btn" id="bgRemoveBtn">🗑️</button>
+            <button class="action-btn bg-btn" id="bgUploadBtn">
+                🖼️ Choose Background
+            </button>
+            <button class="action-btn add-btn" id="uploadBtn">➕ Add Car</button>
         </div>
     </div>
-    <div id="loading" style="display:none;">Processing...</div>
+    <div id="loading" class="loading-overlay hidden">
+        <div class="loading-box">
+            <div class="spinner">
+                <span>⚙️</span>
+                <span>✨</span>
+                <span>🚗</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+
+            <div id="loadingText" class="loading-text">
+                Processing...
+            </div>
+        </div>
+    </div>
 
     <div id="garage"></div>
 
@@ -29,8 +48,16 @@
 
     <div id="raceModal" class="modal hidden">
         <div class="modal-content">
-            <button id="closeRace">✖</button>
-            <div id="raceResult"></div>
+            <div id="winnerOverlay" class="winner-overlay hidden">
+                <div class="winner-card">
+                    <h1 id="winnerTitle"></h1>
+
+                    <img id="winnerImage" />
+
+                    <div id="winnerStats" class="winner-stats"></div>
+                </div>
+            </div>
+
 
             <div id="raceTrack">
                 <div class="lane">

@@ -10,7 +10,7 @@ import os
 import psycopg2
 from flask_cors import CORS
 import time
-from helpers import remove_background, get_car_mm
+from helpers import remove_background, get_car_mm, delete_file
 from engine_generator import write_engine
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -51,7 +51,8 @@ def init_db():
         is_electric BOOLEAN,
         x FLOAT,
         y FLOAT,
-        eur_value FLOAT
+        eur_value FLOAT,
+        sound_url TEXT
     )
     """)
     conn.commit()
@@ -136,6 +137,11 @@ def process_single_car(file, session_id):
     except Exception as e:
         print("Gemini failed:", e, flush=True)
 
+    if displacement:
+        sound_url = f"/static/engine/{displacement}/HOLDER.mp3" #TODO: vul HOLDER in met whatev SIL als naam heeft
+    else:
+        sound_url = f"/static/engine/default.mp3"
+
     # 4. Store everything
     cursor.execute("""
         INSERT INTO cars (
@@ -143,9 +149,9 @@ def process_single_car(file, session_id):
             image_url, bg_removed_url,
             make, model, year,
             acceleration, power, displacement,
-            cylinders, is_electric, eur_value
+            cylinders, is_electric, eur_value, sound_url
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         car_id,
         session_id,
@@ -159,7 +165,8 @@ def process_single_car(file, session_id):
         displacement,
         cylinders,
         isElectric,
-        eur_value
+        eur_value,
+        sound_url
     ))
 
     conn.commit()
@@ -177,7 +184,8 @@ def process_single_car(file, session_id):
         "power": power,
         "acceleration": acceleration,
         "isElectric": isElectric,
-        "eur_value": eur_value
+        "eur_value": eur_value,
+        "sound_url": sound_url
     }
 
 
@@ -185,7 +193,7 @@ def process_single_car(file, session_id):
 def get_cars():
     session_id = request.args.get("session_id")
     cursor.execute(
-        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration, eur_value, cylinders, displacement FROM cars WHERE session_id = %s",
+        "SELECT id, image_url, bg_removed_url, make, model, year, power, is_electric, x, y, acceleration, eur_value, cylinders, displacement, sound_url FROM cars WHERE session_id = %s",
         (session_id,)
     )
     rows = cursor.fetchall()
@@ -205,13 +213,59 @@ def get_cars():
             "acceleration": r[10],
             "eur_value": r[11],
             "cylinders": r[12],
-            "displacement": r[13]
+            "displacement": r[13],
+            "sound_url": r[14]
         }
         for r in rows
     ]
+    if(len(cars) > 0):
+        print("Generating engine sound", flush=True)
+        #write_engine(cars[0]["cylinders"], cars[0]["id"])
+        print("Generated engine sound:", flush=True)
     
     return jsonify(cars)
 
+@app.route("/delete-car", methods=["POST"])
+def delete_car():
+    data = request.json
+    car_id = data.get("car_id")
+
+    if not car_id:
+        return jsonify({"error": "car_id required"}), 400
+
+    cursor.execute("""
+        SELECT image_url, bg_removed_url FROM cars WHERE id = %s
+    """, (car_id,))
+    row = cursor.fetchone()
+
+    if not row:
+        return jsonify({"error": "car not found"}), 404
+
+    image_url, bg_removed_url = row
+    delete_file(image_url)
+    delete_file(bg_removed_url)
+
+    cursor.execute("DELETE FROM cars WHERE id = %s", (car_id,))
+    conn.commit()
+
+    return jsonify({"ok": True})
+
+@app.route("/upload-bg", methods=["POST"])
+def upload_bg():
+    file = request.files.get("image")
+
+    if not file:
+        return jsonify({"error": "No file"}), 400
+
+    bg_id = str(uuid.uuid4())
+    filename = f"{bg_id}_bg.png"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+
+    file.save(filepath)
+
+    return jsonify({
+        "url": f"/static/uploads/{filename}"
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
