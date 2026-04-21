@@ -235,6 +235,22 @@ def delete_car():
 
     return jsonify({"ok": True})
 
+@app.route("/upload-bg", methods=["POST"])
+def upload_bg():
+    file = request.files.get("image")
+
+    if not file:
+        return jsonify({"error": "No file"}), 400
+
+    bg_id = str(uuid.uuid4())
+    filename = f"{bg_id}_bg.png"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+
+    file.save(filepath)
+
+    return jsonify({
+        "url": f"/static/uploads/{filename}"
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)

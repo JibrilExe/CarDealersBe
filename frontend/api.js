@@ -37,3 +37,11 @@ export async function deleteCar(car_id) {
 
     return res.json();
 }
+
+export async function uploadBackground(formData) {
+    const res = await fetch(`${API}/upload-bg`, {
+        method: "POST",
+        body: formData
+    });
+    return res.json();
+}

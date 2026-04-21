@@ -5,10 +5,24 @@ import { race } from "./race.js";
 import { setLoading } from "./loading.js";
 import { handleFileSelect, uploadClick } from "./upload.js";
 import { getSessionId } from "./sessionId.js";
+import { applyGarageBackground, updateBgButtons } from "./background.js";
+
+const savedBg = localStorage.getItem("garage_bg");
+if (savedBg) {
+    applyGarageBackground(savedBg);
+}
 
 document.getElementById("fileInput").addEventListener("change", handleFileSelect);
 document.getElementById("uploadBtn").addEventListener("click", uploadClick);
 document.getElementById("raceBtn").addEventListener("click", race);
+document.getElementById("bgUploadBtn").onclick = () => {
+    document.getElementById("bgInput").click();
+};
+document.getElementById("bgRemoveBtn").onclick = () => {
+    localStorage.removeItem("garage_bg");
+    applyGarageBackground(null);
+    updateBgButtons();
+};
 
 const panel = document.getElementById("sidePanel");
 const button = document.getElementById("sidePanelButton");
@@ -36,14 +50,24 @@ garage.ondrop = async (e) => {
     garage.classList.remove("drag-over");
 
     const carId = e.dataTransfer.getData("text/plain");
+    const from = e.dataTransfer.getData("from");
+
     const rect = garage.getBoundingClientRect();
 
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    await updateXY(carId, x, y);
+    const offsetX = parseFloat(e.dataTransfer.getData("offsetX")) || 0;
+    const offsetY = parseFloat(e.dataTransfer.getData("offsetY")) || 0;
 
-    loadCars(getSessionId());
+    const x = e.clientX - rect.left - offsetX;
+    const y = e.clientY - rect.top - offsetY;
+
+    try {
+        await updateXY(carId, x, y);
+        loadCars(getSessionId());
+    } catch (err) {
+        console.log("Move failed:", err);
+    }
 };
 
 initSidePanel();
+updateBgButtons();
 loadCars(getSessionId());

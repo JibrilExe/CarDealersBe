@@ -15,9 +15,11 @@
         </div>
         <div id="totalValueDisplay">€0</div>
         <div class="right-buttons">
-            <select id="bgSelect" class="action-btn bg-btn">
-                <button value="">🖼️ Kies Achtergrond</button>
-            </select>
+            <input type="file" id="bgInput" style="display:none;" accept="image/*" />
+            <button class="action-btn bg-btn" id="bgRemoveBtn">🗑️</button>
+            <button class="action-btn bg-btn" id="bgUploadBtn">
+                🖼️ Upload eigen garage
+            </button>
             <button class="action-btn add-btn" id="uploadBtn">➕ Auto Toevoegen</button>
         </div>
     </div>
