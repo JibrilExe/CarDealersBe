@@ -15,8 +15,7 @@
 ### Optional (Sound Generation Only)
 - Python 3
 - pip3
-- Linux (required for sound generation)
-- Wine
+- Wine (Linux and mac only)
 
 ---
 
