@@ -371,4 +371,6 @@ main()
         params={"name": name}
     )
 
+    returnString = f"static/engine/{name}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+
     

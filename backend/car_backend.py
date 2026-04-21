@@ -137,10 +137,19 @@ def process_single_car(file, session_id):
     except Exception as e:
         print("Gemini failed:", e, flush=True)
 
-    if displacement:
-        sound_url = f"/static/engine/{displacement}/HOLDER.mp3" #TODO: vul HOLDER in met whatev SIL als naam heeft
-    else:
-        sound_url = f"/static/engine/default.mp3"
+    sound_url = f"/static/engine/defaults/{cylinders}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+    if cylinders > 0 and not isElectric:
+        print("Generating engine sound", flush=True)
+        sound_url = write_engine(cylinders, car_id)
+        print("Generated engine sound:", flush=True)
+    
+
+    if not os.path.exists(str(sound_url)):
+        print("Sound not found! using default sound for cylinder", flush=True)
+        if(cylinders <= 1 or cylinders > 18 or isElectric):
+            sound_url = f"/static/engine/defaults/1/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+        else:
+            f"/static/engine/defaults/{cylinders}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
 
     # 4. Store everything
     cursor.execute("""
@@ -218,10 +227,6 @@ def get_cars():
         }
         for r in rows
     ]
-    if(len(cars) > 0):
-        print("Generating engine sound", flush=True)
-        #write_engine(cars[0]["cylinders"], cars[0]["id"])
-        print("Generated engine sound:", flush=True)
     
     return jsonify(cars)
 
