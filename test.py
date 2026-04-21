@@ -52,7 +52,7 @@ def gen_sound():
     else:
         # Linux / Mac: use Wine
         cmd = ["wine"] + base_cmd
-        cwd = None
+        cwd = ENGINE_DIR
         print("🐧 UNIX/WINE MODE")
 
     print("ENGINE_DIR:", ENGINE_DIR, flush=True)
@@ -75,7 +75,7 @@ def gen_sound():
 
     return jsonify({
         "generation": "success",
-        "sound": f"/static/engine/{name}/output.wav"
+        "sound": f"/static/engine/{name}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
     })
 
 if __name__ == "__main__":
