@@ -91,12 +91,12 @@ You should now have both the **backend and frontend running**.
 
    * Drag a car to the **center of the screen** to add it to your garage.
    * View total price of the garage at the top of the screen.
-   * Use the **left-side menu** to compare specifications.
+   * Use the **right-side menu** to compare specifications.
 
 5. **Managing Cars**
 
    * **Left-click** a car → Remove from garage
-   * **Right-click** a car → Remove from app entirely
+   * **Right-click** a car from the collection on the bottom of the screen → Remove from app entirely
 
 6. **Drag Racing**
 
