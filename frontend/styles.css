@@ -39,8 +39,8 @@ body {
 .side-panel {
     position: fixed;
     top: 0;
-    right: -350px; /* slightly wider hidden offset */
-    width: 320px;
+    right: -400px; /* slightly wider hidden offset */
+    width: 370px;
     height: 100%;
 
     background: linear-gradient(180deg, #1b1f24, #0f1115);
@@ -143,7 +143,7 @@ body {
 }
 
 .sidePanelButton.open {
-    right: 290px;
+    right: 380px;
 }
 
 /* MONEY DISPLAY */
