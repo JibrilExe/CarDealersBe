@@ -143,7 +143,7 @@ def process_single_car(file, session_id):
             print("Generating engine sound", flush=True)
             try:
                 sound_url = write_engine(cylinders, car_id)
-                print("Generated engine sound:", flush=True)
+                print("Generated engine sound:", sound_url, flush=True)
             except Exception as e:
                 print("Sound generation failed:", e, flush=True)
 

@@ -370,9 +370,12 @@ main()
         "http://host.docker.internal:5002/execute_gen_sound",
         params={"name": name}
     )
+    data = response.json()
+    sound_url = data.get("sound")
 
-    returnString = f"static/engine/{name}/generated_engine_rpm_1500_throttle_50_loop_5s.wav"
+    if not sound_url:
+        raise Exception("No sound URL returned from generator")
 
-    return returnString
+    return sound_url
 
     
