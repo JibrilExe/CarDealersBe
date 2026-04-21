@@ -1,43 +1,112 @@
-# Premium Deluxe Motorsport
-Gamified virtual garage builder.
-Upload clear images of your favourite motor vehicle.
-Choose your own garage background.
-Compare your favourite cars with classic charts, or make them race.
+# Usage Guide
 
-(Soon you will also be able to hear your engine sounds.)
+## Notes
+- Anything marked with **(sound generation)** is optional.
+- These components enable **dynamic engine sound generation**.
+- If not installed, the application will **fall back to pre-generated sounds**.
 
-## App usage:
-When user uploads car(s), a request is sent to our backend model, which will do a best effort to remove the background, and get all relevant car stats.
-During development it needed avg 10-15 seconds to complete one upload. (May vary depending on our used tool loads)
-Upon completion the car is displayed in the bottom collection tab.
+---
 
-From the collection tab, cars can be dragged to the garage == the box in middle of screen.
-Cars in the garage can be compared with charts using the side panel on the right that can be expanded.
-For quick stats on a car in collection, hover it.
+## Dependencies
 
-Using the race button, all cars in garage are made to race. Upon end the winner stats are displayed in a popup.
+### Required
+- Docker
 
-Right click cars in the collection to remove them (adding them back will cost you time again).
-Left click cars in the garage to remove them from garage only.
+### Optional (Sound Generation Only)
+- Python 3
+- pip3
+- Linux (required for sound generation)
+- Wine
 
-On top of the screen, the estimated total value of all cars in the garage is displayed.
+---
 
-Garage background can be set by user with the choose background button.
-Trash can button can be used to reset to original background.
-
-## How to host yourself:
-Background removal model is hosted on replicate,
-and the demo uses Gemini to guesstimate car stats.
-Thus you need to set following API tokens in a .env located in the root of the project since docker-compose.yaml will look there.
+## Setup
+Add a .env file to the root off the project
+add the following lines with your api keys
 ```
-REPLICATE_API_TOKEN=
-GEMINI_API_PAID_TOKEN=
+REPLICATE_API_TOKEN={replicate api token}
+GEMINI_API_PAID_TOKEN={gemini api token}
 ```
 
-Get yourself a Docker capable machine.
-It assumes that port 5001 is free for the database, and 8080 for the web app.
+Run the following commands in the **project root directory**:
 
-```
+```bash
 docker-compose build
+````
+
+### Optional: Sound Generation Setup
+
+```bash
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate the virtual environment
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+---
+
+## Run
+
+### Optional: Start Sound Generation
+
+```bash
+python test.py
+```
+
+### Start Application
+
+In a separate terminal (project root):
+
+```bash
 docker-compose up
 ```
+
+You should now have both the **backend and frontend running**.
+
+---
+
+## Usage
+
+1. Open your browser and go to:
+
+   ```
+   http://localhost:8080
+   ```
+
+2. **Add Cars**
+
+   * Click the **"Add"** button (top right).
+   * Image processing takes ~20 seconds (depending on system).
+   * Once complete, the car appears at the bottom with its make and model when you hover over it.
+
+3. **Play Engine Sound**
+
+   * Click the button on the **top-left of the car image**.
+
+4. **Garage System**
+
+   * Drag a car to the **center of the screen** to add it to your garage.
+   * View total price of the garage at the top of the screen.
+   * Use the **right-side menu** to compare specifications.
+
+5. **Managing Cars**
+
+   * **Left-click** a car → Remove from garage
+   * **Right-click** a car from the collection on the bottom of the screen → Remove from app entirely
+
+6. **Drag Racing**
+
+   * Add multiple cars to your garage.
+   * Click the **"Race"** button (left side) to compare acceleration.
+
+7. **Customization**
+
+   * Click **"Change Background"** (top) to set a custom garage background.
+
+
+## Used libraries
+https://github.com/Talhasarac/engine-sim-sound-exporter (Talhasarac)
