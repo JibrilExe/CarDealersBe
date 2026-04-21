@@ -209,10 +209,6 @@ def get_cars():
         }
         for r in rows
     ]
-    if(len(cars) > 0):
-        print("Generating engine sound", flush=True)
-        write_engine(cars[0]["cylinders"], cars[0]["id"])
-        print("Generated engine sound:", flush=True)
     
     return jsonify(cars)
 
