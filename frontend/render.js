@@ -18,6 +18,20 @@ function renderCollection(cars, session_id) {
     el.innerHTML = "";
 
     cars.forEach(car => {
+        const soundBtn = document.createElement("button");
+        soundBtn.className = "sound-btn";
+        soundBtn.innerHTML = "🔊";
+        soundBtn.onclick = (e) => {
+            e.stopPropagation(); // important so it doesn't trigger drag/click issues
+
+            if (!car.sound_url) return;
+
+            const audio = new Audio(BASE + car.sound_url);
+            audio.volume = 0.7;
+            audio.play().catch(err => {
+                console.log("Audio play blocked:", err);
+            });
+        };
         const card = document.createElement("div");
         card.className = "car-card"; // for css
 
@@ -72,7 +86,7 @@ function renderCollection(cars, session_id) {
                 console.log("Delete error:", err);
             }
         });
-
+        card.appendChild(soundBtn);
         card.appendChild(img);
         card.appendChild(info);
         el.appendChild(card);

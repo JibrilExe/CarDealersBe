@@ -289,6 +289,20 @@ body {
     background: #222;
 }
 
+.sound-btn {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 10;
+
+    background: rgba(0,0,0,0.6);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 6px;
+    cursor: pointer;
+    color: white;
+}
+
 .car-card {
     flex: 0 0 auto;
     width: 200px;
