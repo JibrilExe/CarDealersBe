@@ -1,3 +1,4 @@
+import { BASE } from "./base_url.js";
 function openRaceModal(cars) {
     const modal = document.getElementById("raceModal");
     const track = document.getElementById("raceTrack");
@@ -12,7 +13,7 @@ function openRaceModal(cars) {
         lane.className = "lane";
         
         const img = document.createElement("img");
-        img.src = "http://localhost:5001" + (car.bg_removed_url || car.image_url);
+        img.src = BASE + (car.bg_removed_url || car.image_url);
         img.id = `race-car-${index}`;
         
         lane.appendChild(img);
@@ -57,7 +58,7 @@ function showWinner(car) {
 
     title.innerText = `${car.make || "Unknown"} ${car.model || ""} (${car.year || "-"}) won 🏆`;
 
-    img.src = "http://localhost:5001" + (car.bg_removed_url || car.image_url);
+    img.src = BASE + (car.bg_removed_url || car.image_url);
 
     let powerString = "-";
     if (car.power) {
